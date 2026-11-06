@@ -5,19 +5,16 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger from GitHub web interface
+  workflow_dispatch:
 
 jobs:
   build-ios:
     name: Build iOS IPA Package
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Select Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer || true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,7 +32,7 @@ jobs:
           npx cap add ios
           npx cap sync ios
 
-      - name: Update Info.plist and Project Settings
+      - name: Update Info.plist
         run: |
           PLIST_PATH="ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName LOGITTA" "$PLIST_PATH" || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string LOGITTA" "$PLIST_PATH"
