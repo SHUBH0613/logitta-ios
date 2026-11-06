@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes,viewport-fit=cover">
+<!-- ── PWA / standalone mode tags ─────────────────────────────────────────
+     The original file only had apple-mobile-web-app-capable, which works on
+     iOS Safari but does nothing on Android Chrome — so when the user runs
+     the app in Chrome, the browser still draws its address bar/title bar at
+     the top showing the page <title>. That title bar reads "LOGITTA…" and
+     was the source of the "heading at top of every screen" report.
+
+     Fix: add the Android-equivalent mobile-web-app-capable tag, plus a
+     minimal inline manifest using a data: URL. When the user taps
+     Chrome's "Add to Home Screen", Chrome reads the manifest and launches
+     the app in standalone (fullscreen, no address bar) mode. Until they
+     do that, we shorten the title so the visible bar reads "Logitta" with
+     no trailing ellipsis taking weird space.
+
+     Title shortened from "LOGITTA..." to "Logitta" — the dots only ever
+     belonged to the home-screen logo animation, not to the page title. -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Logitta">
+<meta name="theme-color" content="#08101f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Logitta</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ══════════════════════════ ICON SPRITE — all SVG icons defined once ══════════════════════════ -->
+<svg class="icon-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+        <!-- Sync icons -->
+    <symbol id="i-cloud-sync" viewBox="0 0 24 24">
+      <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+    </symbol>
+    <symbol id="i-drive" viewBox="0 0 24 24">
+      <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6M22.85 15l-6.57-11.5H9.72l6.56 11.5"/>
+    </symbol>
+    <!-- Navigation icons (aviation-themed) -->
+    <symbol id="i-wings" viewBox="0 0 24 24">
+      <path d="M12 7 L13.4 12 L12 17 L10.6 12 Z"/>
+      <path d="M10.6 10 L3 10.4"/>
+      <path d="M10.6 12 L2.5 13"/>
+      <path d="M10.6 14 L4 15.5"/>
+      <path d="M13.4 10 L21 10.4"/>
+      <path d="M13.4 12 L21.5 13"/>
+      <path d="M13.4 14 L20 15.5"/>
+    </symbol>
+    <symbol id="i-pen-line" viewBox="0 0 24 24">
+      <path d="M14 4 L20 10 L11 19 L5 19 L5 13 Z"/>
+      <path d="M13 5 L19 11"/>
+      <path d="M3 22 L21 22"/>
+    </symbol>
+    <symbol id="i-book" viewBox="0 0 24 24">
+      <path d="M12 6 L12 19"/>
+      <path d="M12 6 Q8 5 4 6 L4 19 Q8 18 12 19"/>
+      <path d="M12 6 Q16 5 20 6 L20 19 Q16 18 12 19"/>
+      <path d="M6 10 L10 10"/>
+      <path d="M6 13 L10 13"/>
+      <path d="M14 10 L18 10"/>
+      <path d="M14 13 L18 13"/>
+    </symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24">
+      <path d="M4 17 A8 8 0 0 1 20 17"/>
+      <circle cx="12" cy="17" r="1.3"/>
+      <path d="M12 17 L16.8 10"/>
+      <path d="M5.3 13.5 L6.2 14.2"/>
+      <path d="M18.7 13.5 L17.8 14.2"/>
+      <path d="M12 9.5 L12 10.5"/>
+    </symbol>
+
+    <!-- Settings / utility -->
+    <symbol id="i-cog" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="1.7"/>
+      <path d="M12 4.5 C15.8 4.5 18.7 6 20.7 8.8 C17.6 8.5 14.6 7.4 12 4.5 Z"/>
+      <path d="M19.5 15.2 C17.6 18.5 14.9 20.2 11.5 20.6 C12.8 17.7 15.2 15.8 19.5 15.2 Z"/>
+      <path d="M4.5 15.2 C8.2 15.8 10.4 17.6 11.5 20.6 C8 20.1 5.5 18.4 4.5 15.2 Z"/>
+      <path d="M3.3 8.8 C5.4 6 8.2 4.5 12 4.5 C9.4 7.4 6.4 8.5 3.3 8.8 Z"/>
+      <path d="M6.7 12 L17.3 12"/>
+      <path d="M12 6.7 L12 17.3"/>
+    </symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24">
+      <path d="M9 18 L15 18"/>
+      <path d="M10 21 L14 21"/>
+      <path d="M8 13.5 Q7 12 7 10 Q7 5 12 5 Q17 5 17 10 Q17 12 16 13.5 L15 16 L9 16 Z"/>
+    </symbol>
+
+    <!-- Action icons -->
+    <symbol id="i-pencil" viewBox="0 0 24 24">
+      <path d="M16 3 L21 8 L9 20 L4 20 L4 15 Z"/>
+      <path d="M14 5 L19 10"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M3 6 L21 6"/>
+      <path d="M8 6 L8 4 L16 4 L16 6"/>
+      <path d="M5.5 6 L6.5 21 L17.5 21 L18.5 6"/>
+      <path d="M10 11 L10 17"/>
+      <path d="M14 11 L14 17"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <path d="M12 5 L12 19"/>
+      <path d="M5 12 L19 12"/>
+    </symbol>
+    <symbol id="i-plane-add" viewBox="0 0 24 24">
+      <path d="M11 3 L12 7 L18 11 L18 13 L12 11.5 L12 16 L14 18 L14 19 L10 18.5 L7.5 19 L7.5 18 L10 16 L10 11.5 L4 13 L4 11 L10 7 L11 3 Z"/>
+      <path d="M19 4 L19 8"/>
+      <path d="M17 6 L21 6"/>
+    </symbol>
+
+    <!-- File / transfer icons -->
+    <symbol id="i-send" viewBox="0 0 24 24">
+      <!-- paper airplane -->
+      <path d="M3 12 L21 3 L13 21 L11 13 Z"/>
+      <path d="M11 13 L21 3"/>
+    </symbol>
+    <symbol id="i-export" viewBox="0 0 24 24">
+      <!-- upward arrow + tray (save out to file) -->
+      <path d="M12 3 L12 14"/>
+      <path d="M8 7 L12 3 L16 7"/>
+      <path d="M5 15 L5 20 L19 20 L19 15"/>
+    </symbol>
+    <symbol id="i-import" viewBox="0 0 24 24">
+      <!-- downward arrow + tray (load from file) -->
+      <path d="M12 14 L12 3"/>
+      <path d="M8 10 L12 14 L16 10"/>
+      <path d="M5 15 L5 20 L19 20 L19 15"/>
+    </symbol>
+    <symbol id="i-share" viewBox="0 0 24 24">
+      <!-- iOS-style share: arrow leaving open-top box -->
+      <path d="M12 3 L12 14"/>
+      <path d="M8 7 L12 3 L16 7"/>
+      <path d="M6 10 L4 10 L4 20 L20 20 L20 10 L18 10"/>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M3 7 L3 19 L21 19 L21 9 L12 9 L10 7 Z"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <path d="M6 3 L14 3 L19 8 L19 21 L6 21 Z"/>
+      <path d="M14 3 L14 8 L19 8"/>
+      <path d="M9 13 L16 13"/>
+      <path d="M9 16 L16 16"/>
+    </symbol>
+    <symbol id="i-pdf" viewBox="0 0 24 24">
+      <!-- Document with PDF text + downward arrow (download as PDF) -->
+      <path d="M6 3 L14 3 L19 8 L19 21 L6 21 Z"/>
+      <path d="M14 3 L14 8 L19 8"/>
+      <text x="12.5" y="17" text-anchor="middle" font-family="monospace" font-size="5.5" font-weight="900" fill="currentColor" stroke="none">PDF</text>
+    </symbol>
+
+    <!-- Channel icons -->
+    <symbol id="i-phone" viewBox="0 0 24 24">
+      <path d="M5 3 L9 3 L11 8 L8.5 10 Q10 13 14 14.5 L16 12 L21 14 L21 18 Q21 21 18 21 Q9 20 4 11 Q3 7 5 3 Z"/>
+    </symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24">
+      <rect x="3" y="6" width="18" height="14" rx="1"/>
+      <path d="M3 8 L12 14 L21 8"/>
+    </symbol>
+
+    <!-- Day / Night labels -->
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3.5"/>
+      <path d="M12 3 L12 5"/>
+      <path d="M12 19 L12 21"/>
+      <path d="M3 12 L5 12"/>
+      <path d="M19 12 L21 12"/>
+      <path d="M5.5 5.5 L7 7"/>
+      <path d="M17 17 L18.5 18.5"/>
+      <path d="M5.5 18.5 L7 17"/>
+      <path d="M17 7 L18.5 5.5"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M20 14 A8 8 0 1 1 11 4 A6 6 0 0 0 20 14 Z"/>
+    </symbol>
+
+    <!-- Chevron for expand/collapse -->
+    <symbol id="i-chevron-down" viewBox="0 0 24 24">
+      <path d="M6 9 L12 15 L18 9"/>
+    </symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24">
+      <rect x="6" y="5" width="12" height="16" rx="1"/>
+      <path d="M9 3 L15 3 Q15.5 3 15.5 3.5 L15.5 6 L8.5 6 L8.5 3.5 Q8.5 3 9 3 Z"/>
+    </symbol>
+    <!-- Person glyph used in the name-suggestions dropdown (leading icon
+         on each row). Simple head + shoulders silhouette. -->
+    <symbol id="i-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.5"/>
+      <path d="M5 20 Q5 14 12 14 Q19 14 19 20"/>
+    </symbol>
+    <!-- Checkmark for "save" action (inline edit mode). -->
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="M5 12 L10 17 L19 7"/>
+    </symbol>
+    <!-- Crisp X for "cancel" / "delete" actions. -->
+    <symbol id="i-x" viewBox="0 0 24 24">
+      <path d="M6 6 L18 18 M18 6 L6 18"/>
+    </symbol>
+
+  </defs>
+</svg>
+
+<!-- ══════════════════════════ HOME ══════════════════════════ -->
+<div id="home" class="screen active">
+  <button class="home-sync" id="homeSyncBtn" onclick="openSyncModal()" aria-label="Sync & Cloud Backup">
+    <span class="home-sync-dot online" id="homeSyncDot"></span>
+    <svg class="ico" aria-hidden="true"><use href="#i-cloud-sync"/></svg>
+    <span class="sync-word">Sync</span>
+  </button>
+  <button class="home-settings" onclick="openSettings()" aria-label="Settings"><svg class="ico" aria-hidden="true"><use href="#i-cog"/></svg><span class="settings-word">Settings</span></button>
+  <div class="logo-tagline">Army Aviation</div>
+  <div class="home-badge-wrap">
+    <svg class="home-badge-rose" viewBox="0 0 100 100" aria-hidden="true">
+      <!-- thin outer ring -->
+      <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(201,168,76,.14)" stroke-width=".25"/>
+      <!-- 24 minor tick marks via dashed circle, rotated so first tick sits at 12 o'clock -->
+      <circle cx="50" cy="50" r="46" fill="none"
+              stroke="rgba(201,168,76,.32)" stroke-width="1.4"
+              stroke-dasharray="0.4 11.643"
+              transform="rotate(-90 50 50)"/>
+      <!-- 4 major tick marks (cardinal positions), bolder and longer -->
+      <circle cx="50" cy="50" r="46" fill="none"
+              stroke="rgba(201,168,76,.7)" stroke-width="2.6"
+              stroke-dasharray="0.7 71.557"
+              transform="rotate(-90 50 50)"/>
+    </svg>
+    <div class="home-badge">
+      <img class="home-badge-img" src="data:image/jpeg;base64,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" alt="Army Aviation Corps insignia">
+    </div>
+  </div>
+  <div class="logo-wrap">
+    <div class="logo-text" id="logoText">LOGITTA<span class="logo-dots">...</span></div>
+    <div class="logo-line"></div>
+    <div class="logo-subtitle">Flying Log Book</div>
+  </div>
+  <div class="pilot-name" id="homeName">MAJ SS CHAUHAN</div>
+  <div class="pilot-unit" id="homeUnit">ALH WSI · AH-64 Qualified</div>
+  <div class="stat-row">
+    <div class="stat-card collapsed" onclick="toggleStatCards()">
+      <div class="stat-top">
+        <span class="stat-lbl">Total Hrs</span>
+        <span class="stat-val" id="h_total">—</span>
+        <span class="stat-delta" id="h_total_delta">—</span>
+      </div>
+    </div>
+    <div class="stat-card collapsed" onclick="toggleStatCards()">
+      <div class="stat-top">
+        <span class="stat-lbl">Captain</span>
+        <span class="stat-val" id="h_captain">—</span>
+        <span class="stat-delta" id="h_captain_delta">—</span>
+      </div>
+    </div>
+    <div class="stat-card collapsed" onclick="toggleStatCards()">
+      <div class="stat-top">
+        <span class="stat-lbl">Sorties (MTD)</span>
+        <span class="stat-val" id="h_entries">—</span>
+      </div>
+      <span class="stat-catir" id="h_catir" title="CAT / IR currency">—</span>
+    </div>
+  </div>
+  <div class="nav-grid">
+    <div class="nav-btn" id="navPrev" onclick="go('prev')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-wings"/></svg></div><div class="nav-lbl">Prior Exp</div><div class="nav-desc">Previous aircraft experience</div></div>
+    <div class="nav-btn" id="navEntry" onclick="_resetEditingState();go('entry')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-pen-line"/></svg></div><div class="nav-lbl">Log Entry</div><div class="nav-desc">Record new sortie</div></div>
+    <div class="nav-btn" id="navLogbook" onclick="go('logbook')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg></div><div class="nav-lbl">Logbook</div><div class="nav-desc">Monthly entries</div></div>
+    <div class="nav-btn" id="navSummary" onclick="go('summary')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-gauge"/></svg></div><div class="nav-lbl">Summary</div><div class="nav-desc">Cumulative totals</div></div>
+  </div>
+  <div class="dev-credit">
+    <div class="dev-credit-lbl">Developed by</div>
+    <div class="dev-credit-name">Samrat</div>
+    <div class="dev-credit-ver">v2.76</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SETTINGS OVERLAY ══════════════════════════ -->
+<div class="settings-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-panel">
+    <div class="sett-title">Settings <span class="sett-close" onclick="closeSettings()">✕</span></div>
+    <div class="sett-row">
+      <div class="sett-label">Pilot Name</div>
+      <input class="sett-input" id="sett_name" placeholder="e.g. MAJ SS CHAUHAN">
+    </div>
+    <div class="sett-row">
+      <div class="sett-label">Unit / Type Rating</div>
+      <input class="sett-input" id="sett_unit" placeholder="e.g. ALH WSI · AH-64 Qualified">
+    </div>
+    <div class="sett-row">
+      <div class="sett-label">CAT / IR Currency</div>
+      <div class="sett-pair">
+        <input class="sett-input" id="sett_catir"      placeholder="e.g. GREEN / CAT-A / IR-1">
+        <input class="sett-input" id="sett_catir_date" type="date">
+      </div>
+    </div>
+    <div class="sett-divider"></div>
+    <div class="sett-row">
+      <div class="sett-label">Accent Colour</div>
+      <div class="sett-btn-row">
+        <div class="sett-chip" id="theme_gold" onclick="setTheme('gold')"><span class="color-disc" style="background:#c9a84c;color:#c9a84c"></span>Gold</div>
+        <div class="sett-chip" id="theme_blue" onclick="setTheme('blue')"><span class="color-disc" style="background:#3498db;color:#3498db"></span>Blue</div>
+        <div class="sett-chip" id="theme_aqua" onclick="setTheme('aqua')"><span class="color-disc" style="background:#1abc9c;color:#1abc9c"></span>Aqua</div>
+        <div class="sett-chip" id="theme_purple" onclick="setTheme('purple')"><span class="color-disc" style="background:#9b59b6;color:#9b59b6"></span>Purple</div>
+        <div class="sett-chip" id="theme_red" onclick="setTheme('red')"><span class="color-disc" style="background:#e74c3c;color:#e74c3c"></span>Red</div>
+        <div class="sett-chip" id="theme_silver" onclick="setTheme('silver')"><span class="color-disc" style="background:#bcc6d4;color:#bcc6d4"></span>Silver</div>
+      </div>
+    </div>
+    <div class="sett-row">
+      <div class="sett-label">Theme Mode</div>
+      <div class="sett-btn-row">
+        <div class="sett-chip" id="mode_light" onclick="setMode('light')"><span class="mode-disc" style="background:#f4f1e8"></span>Light</div>
+        <div class="sett-chip" id="mode_darkgrey" onclick="setMode('darkgrey')"><span class="mode-disc" style="background:#2f3744"></span>Dark Grey</div>
+        <div class="sett-chip" id="mode_dark" onclick="setMode('dark')"><span class="mode-disc" style="background:#08101f"></span>Dark</div>
+      </div>
+    </div>
+    <div class="sett-row">
+      <div class="sett-label">Font Size</div>
+      <div class="sett-btn-row">
+        <div class="sett-chip" id="fs_tiny" onclick="setFontSize('tiny')">Tiny</div>
+        <div class="sett-chip" id="fs_xs" onclick="setFontSize('xs')">Compact</div>
+        <div class="sett-chip" id="fs_sm" onclick="setFontSize('sm')">Small</div>
+        <div class="sett-chip" id="fs_md" onclick="setFontSize('md')">Medium</div>
+        <div class="sett-chip" id="fs_lg" onclick="setFontSize('lg')">Large</div>
+      </div>
+    </div>
+    <div class="sett-divider"></div>
+    <div class="sett-row">
+      <div class="sett-label">Haptic Feedback</div>
+      <div class="sett-btn-row">
+        <div class="sett-chip" id="haptics_on" onclick="setHaptics(true)">On</div>
+        <div class="sett-chip" id="haptics_off" onclick="setHaptics(false)">Off</div>
+      </div>
+    </div>
+    <div class="sett-divider"></div>
+    <div class="sett-row">
+      <div class="sett-label">Help</div>
+      <button class="export-sett-btn" onclick="startTutorial()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-gauge"/></svg>Tutorial — Guided Walkthrough</span><span class="arrow">›</span>
+      </button>
+    </div>
+    <div class="sett-divider"></div>
+    <div class="sett-row">
+      <div class="sett-label">Data Management</div>
+      <button class="export-sett-btn" onclick="openSyncModal()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg>Cloud & Google Drive Sync</span><span class="arrow">›</span>
+      </button>
+      <button class="export-sett-btn" onclick="exportBackup()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-export"/></svg>Export Full Backup (.json)</span><span class="arrow">›</span>
+      </button>
+      <button class="export-sett-btn" onclick="openImportModal()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-import"/></svg>Import Backup (.json)</span><span class="arrow">›</span>
+      </button>
+      <button class="export-sett-btn" onclick="shareSummaryFromSettings()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-share"/></svg>Share Summary (Concise / Complete)</span><span class="arrow">›</span>
+      </button>
+      <button class="export-sett-btn" onclick="openPdfReportModal()">
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-pdf"/></svg>Generate PDF Report</span><span class="arrow">›</span>
+      </button>
+      <button class="export-sett-btn danger" onclick="confirmWipe()">
+        <span style="color:#e74c3c"><svg class="ico ico-mr" aria-hidden="true"><use href="#i-trash"/></svg>Erase All Data</span><span class="arrow" style="color:#e74c3c">›</span>
+      </button>
+    </div>
+    <div class="sett-divider"></div>
+    <div style="font-family:'Share Tech Mono';font-size:9px;color:var(--txt3);letter-spacing:.5px;margin-bottom:14px;line-height:1.5;text-align:center">
+      <svg class="ico ico-mr" aria-hidden="true" style="vertical-align:-.3em"><use href="#i-bulb"/></svg>Data is stored on this device. Export a backup regularly — uninstalling the app or clearing data will erase everything.
+    </div>
+    <button class="sett-save" onclick="saveSettings()">SAVE SETTINGS</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PRIOR EXPERIENCE ══════════════════════════ -->
+<div id="prev" class="screen">
+  <div class="topbar">
+    <div class="back-btn" id="prevBack" onclick="prevGoBack()">←</div>
+    <div class="tb-info">
+      <div class="tb-title" id="prevTitle">Prior Experience</div>
+      <div class="tb-sub" id="prevSub">AIRCRAFT & HOURS BEFORE CURRENT UNIT</div>
+    </div>
+    <div class="tb-spacer" aria-hidden="true"></div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="subview active" id="sv_list">
+    <div class="scroll-area">
+      <div class="pe-actions">
+        <div class="pe-action-btn" onclick="startNewEntry()">
+          <div class="pe-action-ico"><svg class="ico" aria-hidden="true"><use href="#i-plane-add"/></svg></div>
+          <div class="pe-action-info">
+            <div class="pe-action-title">New Entry</div>
+            <div class="pe-action-desc">Add a new aircraft type with all hours</div>
+          </div>
+        </div>
+        <div class="pe-action-btn" onclick="startEditList()">
+          <div class="pe-action-ico"><svg class="ico" aria-hidden="true"><use href="#i-pencil"/></svg></div>
+          <div class="pe-action-info">
+            <div class="pe-action-title">Edit Entry</div>
+            <div class="pe-action-desc">Modify hours for an existing aircraft</div>
+          </div>
+        </div>
+        <div class="pe-action-btn del" onclick="startDeleteList()">
+          <div class="pe-action-ico"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></div>
+          <div class="pe-action-info">
+            <div class="pe-action-title">Delete Entry</div>
+            <div class="pe-action-desc">Remove an aircraft entry</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec">Current Aircraft Entries</div>
+      <div style="height:10px"></div>
+      <div class="ac-list" id="acListDisplay"></div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- NEW NAME VIEW -->
+  <div class="subview" id="sv_name">
+    <div class="scroll-area">
+      <div class="step-card">
+        <div class="step-head">Aircraft Type</div>
+        <div class="step-sub">STEP 1 OF 2 — ENTER AIRCRAFT NAME</div>
+        <input class="step-input" id="newAcInput" placeholder="e.g. Chetak, Cheetah, ALH WSI, CTK…" maxlength="30" onkeydown="if(event.key==='Enter')goToDetail()">
+        <button class="next-btn" onclick="goToDetail()">NEXT — ENTER HOURS →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL ENTRY VIEW -->
+  <div class="subview" id="sv_detail">
+    <div class="scroll-area" id="sv_detail_scroll">
+      <div class="detail-wrap">
+        <div class="pe-step2-lbl">STEP 2 — ENTER HOURS AS HH : MM (BLANK = 0)</div>
+        <table class="detail-table">
+          <thead><tr><th>Category</th><th>HOURS : MINUTES</th></tr></thead>
+          <tbody id="detailTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Sticky action bar pinned to the bottom of the screen -->
+    <div class="action-bar">
+      <button class="reset-btn" onclick="resetDetailFields()">↺ RESET FIELDS</button>
+      <button class="confirm-btn" onclick="showConfirmPopup()">✓ SAVE CHANGES</button>
+    </div>
+  </div>
+
+  <!-- EDIT LIST VIEW -->
+  <div class="subview" id="sv_editlist">
+    <div class="scroll-area">
+      <div style="padding:12px 14px 6px;font-family:'Share Tech Mono';font-size:9px;color:var(--txt2);letter-spacing:1.5px">SELECT AIRCRAFT TO EDIT</div>
+      <div class="ac-list" id="acEditList"></div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- DELETE LIST VIEW -->
+  <div class="subview" id="sv_dellist">
+    <div class="scroll-area">
+      <div style="padding:12px 14px 6px;font-family:'Share Tech Mono';font-size:9px;color:var(--txt2);letter-spacing:1.5px">SELECT AIRCRAFT TO DELETE</div>
+      <div class="ac-list" id="acDelList"></div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM POPUP -->
+<div class="popup-overlay" id="confirmPopup">
+  <div class="popup-card">
+    <div class="popup-title">Confirm Save</div>
+    <div class="popup-body" id="confirmBody">Are you sure you want to save this aircraft entry? This will overwrite any existing data for this aircraft.</div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closePopup()">NO</button>
+      <button class="popup-yes" onclick="doConfirmSave()">YES, SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM POPUP -->
+<div class="popup-overlay" id="deletePopup">
+  <div class="popup-card">
+    <div class="popup-title" style="color:#e74c3c">Delete Aircraft</div>
+    <div class="popup-body" id="deleteBody">Are you sure? This will permanently remove this aircraft and all its prior experience hours.</div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closeDeletePopup()">CANCEL</button>
+      <button class="popup-yes" style="background:linear-gradient(135deg,#e74c3c,#c0392b)" onclick="doDelete()">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG ENTRY DELETE CONFIRM POPUP — themed replacement for the native
+     confirm() dialog. Shows the sortie identity (date / aircraft / route)
+     in a styled block so the user can verify the exact row, then Cancel /
+     Delete in the app's visual language. Tapping the dim backdrop cancels. -->
+<div class="popup-overlay" id="logDeletePopup" onclick="if(event.target===this)closeLogDeletePopup()">
+  <div class="popup-card">
+    <div class="popup-title" style="color:#e74c3c">Delete Log Entry</div>
+    <div class="popup-body">
+      <div class="log-del-descr" id="logDeleteDescr"></div>
+      This cannot be undone.
+    </div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closeLogDeletePopup()">CANCEL</button>
+      <button class="popup-yes" style="background:linear-gradient(135deg,#e74c3c,#c0392b)" onclick="doLogDelete()">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ LOG ENTRY ══════════════════════════ -->
+<div id="entry" class="screen">
+  <div class="topbar">
+    <div class="back-btn" onclick="go('home')">←</div>
+    <div class="tb-info">
+      <div class="tb-title">New Log Entry</div>
+      <div class="tb-sub">RECORD SORTIE DETAILS</div>
+    </div>
+    <div class="tb-spacer" aria-hidden="true"></div>
+  </div>
+  <div class="form-scroll">
+
+    <!-- Month + Year + Date in single row -->
+    <div class="r3">
+      <div class="fgroup">
+        <div class="flabel">Month</div>
+        <select class="finput" id="f_month">
+          <option value="">— Select —</option>
+          <option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option>
+          <option>MAY</option><option>JUN</option><option>JUL</option><option>AUG</option>
+          <option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Year</div>
+        <input type="number" class="finput" id="f_year" placeholder="YYYY">
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Date</div>
+        <input type="number" class="finput" id="f_date" placeholder="DD" min="1" max="31">
+      </div>
+    </div>
+
+    <!-- Aircraft type (from prior exp) + No -->
+    <div class="r2">
+      <div class="fgroup">
+        <div class="flabel">Aircraft Type <span class="flabel-hint">(set in Prior Experience)</span></div>
+        <select class="finput locked" id="f_actype" disabled aria-readonly="true"><option value="">— No active aircraft —</option></select>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Aircraft No</div>
+        <div class="name-suggest-wrap" data-ns="acno">
+          <input type="text" class="finput" id="f_acno" placeholder="e.g. IA-2125"
+                 autocomplete="off"
+                 oninput="onNameInputType('acno', this.value)"
+                 onfocus="showNameSuggest('acno')">
+          <div class="name-suggest-dropdown" id="ns_dropdown_acno"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crew -->
+    <div class="r2">
+      <div class="fgroup">
+        <div class="flabel">Pilot</div>
+        <div class="name-suggest-wrap" data-ns="pilot">
+          <input type="text" class="finput" id="f_pilot" placeholder="SELF or Name"
+                 autocomplete="off"
+                 oninput="onNameInputType('pilot', this.value)"
+                 onfocus="showNameSuggest('pilot')">
+          <div class="name-suggest-dropdown" id="ns_dropdown_pilot"></div>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Co-Pilot</div>
+        <div class="name-suggest-wrap" data-ns="copilot">
+          <input type="text" class="finput" id="f_copilot" placeholder="SELF or Name"
+                 autocomplete="off"
+                 oninput="onNameInputType('copilot', this.value)"
+                 onfocus="showNameSuggest('copilot')">
+          <div class="name-suggest-dropdown" id="ns_dropdown_copilot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route + Entry Type (Ink Colour) side by side -->
+    <div class="r2">
+      <div class="fgroup">
+        <div class="flabel">Route / From-To</div>
+        <input type="text" class="finput" id="f_route" placeholder="LIKA – NYOMA – VILH">
+      </div>
+      <div class="fgroup" id="entryTypeGroup">
+        <div class="flabel">Entry Type — Ink Colour</div>
+        <div class="entry-type-wrap">
+          <select class="entry-type-select" id="f_entrytype" onchange="onEntryTypeChange()">
+            <option value="black" style="color:#aab4c0">●  Black  —  DAY</option>
+            <option value="blue" style="color:#3498db">●  Blue  —  DAY</option>
+            <option value="red" style="color:#e74c3c">●  Red  —  NIGHT</option>
+            <option value="nvg" style="color:#27ae60">●  Green  —  NVG (Night)</option>
+          </select>
+          <div class="color-strip" id="colorStrip"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flying Hours -->
+    <div class="sec">Flying Hours (HH:MM)</div>
+    <div class="hrs-section">
+      <div class="hrs-head">
+        <div class="hrs-hcell">Type</div>
+        <div class="hrs-hcell">Dual</div>
+        <div class="hrs-hcell">Pilot</div>
+        <div class="hrs-hcell">Co-Pilot</div>
+      </div>
+      <!-- Day row -->
+      <div class="hrs-row" id="row_day">
+        <div class="hrs-row-lbl"><svg class="ico ico-mr" aria-hidden="true"><use href="#i-sun"/></svg>Day</div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_day_dual"><input id="h_day_dual_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_day_dual_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_day_pilot"><input id="h_day_pilot_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_day_pilot_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_day_copilot"><input id="h_day_copilot_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_day_copilot_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+      </div>
+      <!-- Night row -->
+      <div class="hrs-row" id="row_night">
+        <div class="hrs-row-lbl"><svg class="ico ico-mr" aria-hidden="true"><use href="#i-moon"/></svg>Night</div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_night_dual"><input id="h_night_dual_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_night_dual_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_night_pilot"><input id="h_night_pilot_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_night_pilot_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="hrs-cell"><div class="hrs-hm" id="h_night_copilot"><input id="h_night_copilot_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="hrs-hm-sep">:</span><input id="h_night_copilot_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+      </div>
+    </div>
+
+    <!-- Special Hours -->
+    <div class="sec">Special / Qualification Hours</div>
+    <div class="hrs-section">
+      <div class="spl-grid">
+        <div class="spl-cell" id="spl_nvg"><div class="spl-lbl">NVG</div><div class="spl-hm"><input id="s_nvg_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_nvg_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="spl-cell" id="spl_imc"><div class="spl-lbl">IMC</div><div class="spl-hm"><input id="s_imc_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_imc_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="spl-cell" id="spl_sif"><div class="spl-lbl">SIF</div><div class="spl-hm"><input id="s_sif_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_sif_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="spl-cell" id="spl_instr_day"><div class="spl-lbl">Instr Day</div><div class="spl-hm"><input id="s_instr_day_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_instr_day_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="spl-cell" id="spl_instr_night"><div class="spl-lbl">Instr Ni</div><div class="spl-hm"><input id="s_instr_night_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_instr_night_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+        <div class="spl-cell" id="spl_wso"><div class="spl-lbl">WSO</div><div class="spl-hm"><input id="s_wso_h" type="text" inputmode="numeric" maxlength="1" placeholder="0"><span class="spl-hm-sep">:</span><input id="s_wso_m" type="text" inputmode="numeric" maxlength="2" placeholder="00"></div></div>
+      </div>
+    </div>
+
+      </div>
+  <!-- Sticky save bar -->
+  <div class="action-bar entry-action-bar">
+    <!-- Swipe-to-reset: drag the knob fully to the right to clear all
+         fields of the entry currently being composed. No confirmation
+         dialog — the swipe gesture itself is the safeguard against an
+         accidental tap. The knob springs back after firing. -->
+    <div class="swipe-reset" id="swipeReset" aria-label="Swipe to reset fields">
+      <div class="swipe-reset-fill" id="swipeResetFill"></div>
+      <div class="swipe-reset-track">
+        <span class="swipe-reset-label">Swipe to Reset</span>
+      </div>
+      <div class="swipe-reset-knob" id="swipeResetKnob">
+        <svg class="ico" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-trash"/></svg>
+      </div>
+    </div>
+    <button class="confirm-btn" style="flex:1" onclick="saveEntry()">⊕ SAVE SORTIE ENTRY</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════ LOGBOOK ══════════════════════════ -->
+<div id="logbook" class="screen">
+  <div class="topbar">
+    <div class="back-btn" onclick="go('home')">←</div>
+    <div class="tb-info">
+      <div class="tb-title">Logbook</div>
+      <div class="tb-sub">MONTHLY SORTIE LOG</div>
+    </div>
+    <div class="tb-spacer" aria-hidden="true"></div>
+  </div>
+  <div class="lb-filter">
+    <div class="lb-filter-label">YEAR</div>
+    <select class="lb-select" id="lb_year" onchange="renderLogbook()" style="flex:.6"></select>
+    <div class="lb-filter-label">MONTH</div>
+    <select class="lb-select" id="lb_month" onchange="renderLogbook()">
+      <option value="" data-keep-empty>All Months</option>
+      <option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option>
+      <option>MAY</option><option>JUN</option><option>JUL</option><option>AUG</option>
+      <option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
+    </select>
+  </div>
+  <!-- Search bar — when populated, overrides the Year/Month filters and
+       searches the ENTIRE logbook across all years/months. Results are
+       grouped by year then month with matched text highlighted in gold. -->
+  <div class="lb-search-wrap">
+    <span class="lb-search-ico" aria-hidden="true">
+      <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </span>
+    <input type="search" class="lb-search-input" id="lb_search"
+           placeholder="Search pilot, route, aircraft…"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+           oninput="onLogbookSearchInput(this.value)">
+    <button class="lb-search-clear" id="lb_search_clear" onclick="clearLogbookSearch()" aria-label="Clear search" style="display:none">×</button>
+    <!-- Page-break picker — only visible in single-month mode (CSS hides it
+         otherwise). User types any positive integer for the cutoff row;
+         a Page Total + Running Total sub-row appears exactly ONCE after
+         that row. The "of N" suffix shows the total entries for the
+         currently-displayed month so the user knows what range is valid. -->
+    <div class="lb-pb-wrap" id="lb_pb_wrap">
+      <label class="lb-pb-label-text" for="lb_pb_input">Page Break</label>
+      <input type="number" class="lb-pb-input" id="lb_pb_input"
+             min="0" max="999" inputmode="numeric"
+             placeholder="Off"
+             onchange="onLogbookPageBreakInput(this.value)"
+             onkeydown="if(event.key==='Enter'){this.blur()}">
+      <span class="lb-pb-of" id="lb_pb_of"></span>
+    </div>
+  </div>
+  <div class="lb-scroll" id="lbScroll"></div>
+</div>
+
+<!-- ══════════════════════════ SUMMARY ══════════════════════════ -->
+<div id="summary" class="screen">
+  <div class="topbar">
+    <div class="back-btn" onclick="go('home')">←</div>
+    <div class="tb-info">
+      <div class="tb-title">Summary</div>
+      <div class="tb-sub">CUMULATIVE & PROGRESSIVE TOTALS</div>
+    </div>
+    <div class="tb-spacer" aria-hidden="true"></div>
+  </div>
+  <div class="scroll-area" id="sumScroll"></div>
+</div>
+
+<!-- ═══════════════ IMPORT BACKUP MODAL ═══════════════ -->
+<div class="picker-overlay" id="importModal" onclick="if(event.target===this)closeImportModal()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Import Backup
+      <span class="picker-close" onclick="closeImportModal()">✕</span>
+    </div>
+    <div class="picker-sub">RESTORE FROM A .JSON BACKUP FILE</div>
+
+    <div id="importStage1">
+      <div class="picker-info">
+        <b>How it works</b>
+        Tap below to pick a Logitta backup (.json) from your phone's storage, Google Drive, or any other location.
+      </div>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('importFileMain').click()">
+        <div class="drop-icon"><svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg></div>
+        <div class="drop-text">Choose Backup File</div>
+        <div class="drop-sub">Tap to browse · accepts .json</div>
+      </div>
+      <input type="file" id="importFileMain" class="hidden-file" accept="application/json,.json" onchange="handleImportFile(event)">
+
+      <div class="drop-or">— OR —</div>
+
+      <div class="picker-info" style="margin-bottom:0">
+        <b>Tip</b>
+        You can also drag-and-drop a .json file onto this area on supported devices.
+      </div>
+    </div>
+
+    <!-- Stage 2: preview & confirm -->
+    <div id="importStage2" style="display:none">
+      <div class="import-success">
+        <div class="import-success-title">✓ Backup File Loaded</div>
+        <div id="importStats"></div>
+      </div>
+      <div class="picker-info" style="border-color:rgba(231,76,60,.25);background:rgba(231,76,60,.06)">
+        <b style="color:#e74c3c">Warning</b>
+        Importing will REPLACE all current data on this device. Make sure you have a current backup if needed.
+      </div>
+      <div class="import-actions">
+        <button class="import-cancel-btn" onclick="cancelImport()">CANCEL</button>
+        <button class="import-confirm-btn" onclick="confirmImport()">REPLACE & RESTORE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EXPORT LOCATION CHOOSER ═══════════════ -->
+<div class="picker-overlay" id="exportModal" onclick="if(event.target===this)closeExportModal()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Save Backup
+      <span class="picker-close" onclick="closeExportModal()">✕</span>
+    </div>
+    <div class="picker-sub">CHOOSE WHERE TO SAVE YOUR BACKUP</div>
+
+    <div class="picker-info" id="exportFileInfo">
+      <b>File ready</b>
+      <span id="exportFileName">logitta_backup.json</span>
+    </div>
+
+    <!-- Share/Send option removed per user request — only direct save and
+         copy-to-clipboard remain. The exportVia('share') code path is still
+         present in app.js (called from other places) but no UI exposes it
+         here anymore. -->
+
+    <button class="save-opt" onclick="exportVia('download')">
+      <div class="save-opt-ico"><svg class="ico" aria-hidden="true"><use href="#i-export"/></svg></div>
+      <div class="save-opt-info">
+        <div class="save-opt-title">Save to Downloads</div>
+        <div class="save-opt-desc">Direct download — saved to your phone's Downloads folder.</div>
+      </div>
+      <div class="save-opt-arrow">›</div>
+    </button>
+
+    <button class="save-opt" onclick="exportVia('copy')">
+      <div class="save-opt-ico"><svg class="ico" aria-hidden="true"><use href="#i-clipboard"/></svg></div>
+      <div class="save-opt-info">
+        <div class="save-opt-title">Copy JSON to Clipboard</div>
+        <div class="save-opt-desc">Paste anywhere — Keep notes, email body, cloud notepad.</div>
+      </div>
+      <div class="save-opt-arrow">›</div>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ PDF REPORT — RANGE & AIRCRAFT PICKER ═══════════════ -->
+<div class="picker-overlay" id="pdfReportModal" onclick="if(event.target===this)closePdfReportModal()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Generate PDF Report
+      <span class="picker-close" onclick="closePdfReportModal()">✕</span>
+    </div>
+    <div class="picker-sub">PICK MONTH RANGE & AIRCRAFT</div>
+
+    <div class="pdf-form-row">
+      <label class="pdf-form-label" for="pdfFromMonth">From</label>
+      <div class="pdf-form-pair">
+        <select id="pdfFromMonth" class="pdf-form-input"></select>
+        <select id="pdfFromYear"  class="pdf-form-input"></select>
+      </div>
+    </div>
+    <div class="pdf-form-row">
+      <label class="pdf-form-label" for="pdfToMonth">To</label>
+      <div class="pdf-form-pair">
+        <select id="pdfToMonth" class="pdf-form-input"></select>
+        <select id="pdfToYear"  class="pdf-form-input"></select>
+      </div>
+    </div>
+    <div class="pdf-form-row">
+      <label class="pdf-form-label" for="pdfAircraft">Aircraft</label>
+      <select id="pdfAircraft" class="pdf-form-input"></select>
+    </div>
+
+    <div class="picker-info" style="margin-top:14px">
+      <b>What you'll get</b>
+      A per-month summary table for each month in the range, plus a cumulative summary for the whole range. Day=blue, Night=red, NVG=green colour coding included.
+    </div>
+
+    <button class="pdf-go-btn" onclick="generatePdfReport()">GENERATE PDF</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SHARE SUMMARY CHOOSER ═══════════════ -->
+<div class="picker-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Share Summary
+      <span class="picker-close" onclick="closeShareModal()">✕</span>
+    </div>
+    <div class="picker-sub">PICK A FORMAT TO SEND</div>
+
+    <button class="share-opt featured" onclick="openCompletePreview()">
+      <div class="share-opt-ico"><svg class="ico" aria-hidden="true"><use href="#i-gauge"/></svg></div>
+      <div class="share-opt-info">
+        <div class="share-opt-title">Complete Summary</div>
+        <div class="share-opt-desc">Full tabular report — every aircraft with Day (all), Night (all), NVG, IMC, SIF, WSO, Instructor breakdowns. Best for official records.</div>
+      </div>
+    </button>
+
+    <button class="share-opt" onclick="openConcisePicker()">
+      <div class="share-opt-ico"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg></div>
+      <div class="share-opt-info">
+        <div class="share-opt-title">Concise Summary</div>
+        <div class="share-opt-desc">For a specific aircraft — Total Captain Hrs, that aircraft's Captain Hrs, NVG, Con-Trg Day &amp; Night for last 3 months.</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ CONCISE — STEP 1: AIRCRAFT PICKER ═══════════════ -->
+<div class="picker-overlay" id="concisePicker" onclick="if(event.target===this)closeConcisePicker()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Concise Summary
+      <span class="picker-close" onclick="closeConcisePicker()">✕</span>
+    </div>
+    <div class="picker-sub">STEP 1 — SELECT AIRCRAFT</div>
+    <div id="conciseAcList" style="max-height:60vh;overflow-y:auto;margin:-4px -2px 0"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONCISE — STEP 2: PREVIEW & SEND ═══════════════ -->
+<div class="picker-overlay" id="concisePreview" onclick="if(event.target===this)closeConcisePreview()">
+  <div class="picker-card">
+    <div class="picker-title">
+      Concise Summary
+      <span class="picker-close" onclick="closeConcisePreview()">✕</span>
+    </div>
+    <div class="picker-sub" id="concisePreviewSub">STEP 2 — REVIEW AND SEND</div>
+    <div class="preview-msg" id="conciseMsgBox"></div>
+    <div class="send-actions">
+      <button class="send-btn generic" onclick="sendConcise('share')">
+        <span class="send-ico"><svg class="ico" aria-hidden="true"><use href="#i-share"/></svg></span><span>Share</span>
+      </button>
+    </div>
+    <button class="send-back-btn" onclick="closeConcisePreview();openConcisePicker()">← Change Aircraft</button>
+  </div>
+</div>
+
+<!-- ═══════════════ COMPLETE — PREVIEW & SEND ═══════════════ -->
+<div class="picker-overlay" id="completePreview" onclick="if(event.target===this)closeCompletePreview()">
+  <div class="picker-card" style="max-width:440px">
+    <div class="picker-title">
+      Complete Summary
+      <span class="picker-close" onclick="closeCompletePreview()">✕</span>
+    </div>
+    <div class="picker-sub">ALL AIRCRAFT — REVIEW AND SEND</div>
+    <div class="preview-table-wrap" id="completeTableWrap"></div>
+    <div class="send-actions">
+      <button class="send-btn generic" onclick="sendComplete('share')">
+        <span class="send-ico"><svg class="ico" aria-hidden="true"><use href="#i-share"/></svg></span><span>Share</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ═══════════════ ENTRY SAVE CONFIRM POPUP ═══════════════ -->
+<div class="popup-overlay" id="entryConfirmPopup">
+  <div class="popup-card">
+    <div class="popup-title">Confirm Entry</div>
+    <div class="popup-body" style="text-align:left">
+      <div id="entryConfirmSummary"></div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="cancelSaveEntry()">CANCEL</button>
+      <button class="popup-yes" onclick="confirmSaveEntry()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAPTAIN CON-TRG PICKER POPUP (Day / Night) -->
+<div class="popup-overlay" id="ccPickerPopup" onclick="if(event.target===this)closeCcPicker()">
+  <div class="popup-card">
+    <div class="popup-title" id="ccPickerTitle">Captain Con-Trg</div>
+    <div class="popup-body" style="text-align:left">
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="ccPilotChk"><span>Pilot hours</span></label>
+      </div>
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="ccCopilotChk"><span>Co-Pilot hours</span></label>
+      </div>
+      <div class="cc-pick-row cc-pick-months">
+        <span class="cc-pick-lbl">Period</span>
+        <div class="cc-stepper" id="ccMonthsStep">
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('ccMonthsStep',-1)" aria-label="Fewer months">−</button>
+          <span class="cc-step-val" id="ccMonthsVal">3</span>
+          <span class="cc-step-unit">mo</span>
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('ccMonthsStep',1)" aria-label="More months">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closeCcPicker()">CANCEL</button>
+      <button class="popup-yes" onclick="applyCcPicker()">APPLY</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIF + IMC PICKER POPUP -->
+<div class="popup-overlay" id="ccSifImcPopup" onclick="if(event.target===this)closeSifImcPicker()">
+  <div class="popup-card">
+    <div class="popup-title">SIF + IMC</div>
+    <div class="popup-body" style="text-align:left">
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="ccSifChk"><span>SIF hours</span></label>
+      </div>
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="ccImcChk"><span>IMC hours</span></label>
+      </div>
+      <div class="cc-pick-row cc-pick-months">
+        <span class="cc-pick-lbl">Period</span>
+        <div class="cc-stepper" id="ccSifImcMonthsStep">
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('ccSifImcMonthsStep',-1)" aria-label="Fewer months">−</button>
+          <span class="cc-step-val" id="ccSifImcMonthsVal">3</span>
+          <span class="cc-step-unit">mo</span>
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('ccSifImcMonthsStep',1)" aria-label="More months">+</button>
+        </div>
+      </div>
+      <div class="cc-pick-row cc-pick-months">
+        <span class="cc-pick-lbl">Threshold (full bar)</span>
+        <div class="cc-stepper" id="ccSifImcThreshStep">
+          <button type="button" class="cc-step-btn" onclick="_stepThresh('ccSifImcThreshStep',-1)" aria-label="Lower threshold">−</button>
+          <span class="cc-step-val" id="ccSifImcThreshVal">3</span>
+          <span class="cc-step-unit">h</span>
+          <button type="button" class="cc-step-btn" onclick="_stepThresh('ccSifImcThreshStep',1)" aria-label="Raise threshold">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closeSifImcPicker()">CANCEL</button>
+      <button class="popup-yes" onclick="applySifImcPicker()">APPLY</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY / NIGHT GAUGE PICKER POPUP (toggles + months + dual-marker threshold bar) -->
+<div class="popup-overlay" id="gaugePickerPopup" onclick="if(event.target===this)closeGaugePicker()">
+  <div class="popup-card">
+    <div class="popup-title" id="gpTitle">Gauge</div>
+    <div class="popup-body" style="text-align:left">
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="gpPilotChk"><span>Pilot hours</span></label>
+      </div>
+      <div class="cc-pick-row">
+        <label class="cc-pick-check"><input type="checkbox" id="gpCopilotChk"><span>Co-Pilot hours</span></label>
+      </div>
+      <div class="cc-pick-row" id="gpNvgRow">
+        <label class="cc-pick-check"><input type="checkbox" id="gpNvgChk"><span>Show NVG hours</span></label>
+      </div>
+      <div class="cc-pick-row cc-pick-months">
+        <span class="cc-pick-lbl">Period</span>
+        <div class="cc-stepper" id="gpMonthsStep">
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('gpMonthsStep',-1)" aria-label="Fewer months">−</button>
+          <span class="cc-step-val" id="gpMonthsVal">3</span>
+          <span class="cc-step-unit">mo</span>
+          <button type="button" class="cc-step-btn" onclick="_stepMonths('gpMonthsStep',1)" aria-label="More months">+</button>
+        </div>
+      </div>
+      <div class="gp-bar-section">
+        <div class="gp-bar-heading-row">
+          <span class="gp-bar-heading">Con-Trg reqt (hours)</span>
+          <input type="text" id="gpThreshInput" class="gp-thresh-input" inputmode="numeric" maxlength="2"
+                 oninput="_gpThreshInput(this.value)" onchange="_gpThreshCommit(this.value)"
+                 onblur="_gpThreshCommit(this.value)" aria-label="Minimum threshold hours">
+        </div>
+        <div class="gp-bar-labels">
+          <span class="gp-marker-lbl gp-red-lbl" id="gpRedLbl">20h</span>
+        </div>
+        <div class="gp-bar-track" id="gpBarTrack">
+          <div class="gp-bar-fill" id="gpBarFill"></div>
+          <div class="gp-ticks">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="gp-marker gp-red" id="gpRedMarker" onpointerdown="_gpStartDrag('red',event)" ontouchstart="_gpStartDrag('red',event)"></div>
+        </div>
+        <div class="gp-bar-scale"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div>
+        <div class="gp-bar-note">Below the mark = red · at or above = green</div>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-no" onclick="closeGaugePicker()">CANCEL</button>
+      <button class="popup-yes" onclick="applyGaugePicker()">APPLY</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════ GUIDED TUTORIAL overlay (spotlight + caption card) ════════════ -->
+<div class="tut-overlay" id="tutOverlay">
+  <div class="tut-spotlight" id="tutSpotlight"></div>
+  <div class="tut-card" id="tutCard">
+    <div class="tut-card-step" id="tutCardStep"></div>
+    <div class="tut-card-text" id="tutCardText"></div>
+    <div class="tut-card-actions">
+      <button class="tut-btn-close" onclick="endTutorial()">Close Tutorial</button>
+      <button class="tut-btn-next" id="tutBtnNext" onclick="tutNext()">Next</button>
+    </div>
+  </div>
+</div>
+
+<script src="idb-storage.js"></script>
+<script src="sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
+

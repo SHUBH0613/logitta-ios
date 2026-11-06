@@ -1,0 +1,69 @@
+name: Build iOS App (.ipa)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger from GitHub web interface
+
+jobs:
+  build-ios:
+    name: Build iOS IPA Package
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Web Bundle
+        run: npm run build
+
+      - name: Add and Sync Capacitor iOS
+        run: |
+          npx cap add ios
+          npx cap sync ios
+
+      - name: Update Info.plist and Project Settings
+        run: |
+          PLIST_PATH="ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName LOGITTA" "$PLIST_PATH" || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string LOGITTA" "$PLIST_PATH"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 2.76" "$PLIST_PATH" || true
+          /usr/libexec/PlistBuddy -c "Set :UIRequiresFullScreen true" "$PLIST_PATH" || /usr/libexec/PlistBuddy -c "Add :UIRequiresFullScreen bool true" "$PLIST_PATH"
+
+      - name: Build Xcode Archive (Unsigned for Sideloadly)
+        run: |
+          cd ios/App
+          xcodebuild archive \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package into IPA
+        run: |
+          mkdir -p ipa-build/Payload
+          cp -r ios/App/build/App.xcarchive/Products/Applications/App.app ipa-build/Payload/LOGITTA.app
+          cd ipa-build
+          zip -r -q ../LOGITTA.ipa Payload
+          cd ..
+          ls -lh LOGITTA.ipa
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LOGITTA-iOS-App
+          path: LOGITTA.ipa
+          retention-days: 14

@@ -1,0 +1,13 @@
+{
+  "appId": "com.aviation.logitta",
+  "appName": "LOGITTA",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always",
+    "preferredContentMode": "mobile"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

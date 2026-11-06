@@ -1,0 +1,12 @@
+node_modules/
+www/
+ios/
+.DS_Store
+Thumbs.db
+*.log
+ipa-build/
+*.ipa
+*.apk
+server_data/
+.system_generated/
+extracted_apk/
