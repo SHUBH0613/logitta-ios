@@ -152,9 +152,17 @@ function getActiveAcId(){
   // Returns the currently-active aircraft id, or null if none set or the
   // referenced aircraft has been deleted.
   const id = _storeGet(K_ACTIVE, null);
-  if(!id) return null;
   const acs = getAC();
-  return acs.find(a=>a.id===id) ? id : null;
+  if(!acs.length) return null;
+  if(id && acs.find(a=>a.id===id)) return id;
+  // Fallback: auto-select ALH MK1 (or first available aircraft) so the Summary page
+  // is never empty/broken with 0h!
+  const defaultAc = acs.find(a => (a.name||'').toLowerCase().includes('alh')) || acs[0];
+  if(defaultAc){
+    _storeSet(K_ACTIVE, defaultAc.id);
+    return defaultAc.id;
+  }
+  return null;
 }
 function setActiveAcId(id){
   if(id) _storeSet(K_ACTIVE, id);
@@ -2614,7 +2622,7 @@ function _renderLogbookSearch(){
       rows.forEach((e, idx) => {
         const inkClass = _entryInkClass(e);
         const col = _entryInkColor(e);
-        const selfPilot = e.pilot === 'SELF' || (e.pilot||'').toUpperCase().includes('SELF');
+        const selfPilot = e.pilot && (e.pilot.toUpperCase().includes('SELF') || e.pilot.toLowerCase().includes('shubham') || e.pilot.toLowerCase().includes(((getSettings()||{}).name||'').toLowerCase()));
         const f = mins => mins ? hmHTML(mins) : '\u2014';
         // Read-only search-result row — no Strike/Edit/Del buttons. The user
         // can clear the search bar and navigate to the entry's month to edit
@@ -2654,16 +2662,16 @@ function _renderLogbookSearch(){
 function _entryInkClass(e){
   const t = (e.entryType || '').toLowerCase();
   if(t.includes('nvg')) return 'ink-nvg';
-  if(t.includes('night') || t.includes('ni ')) return 'ink-red';
-  if(t.includes('day')) return 'ink-blue';
+  if(t.includes('night') || t.includes('ni ') || t.includes('red')) return 'ink-red';
+  if(t.includes('day') || t.includes('blue')) return 'ink-blue';
   return 'ink-black';
 }
 function _entryInkColor(e){
   const t = (e.entryType || '').toLowerCase();
   if(t.includes('nvg')) return '#2ecc71';
-  if(t.includes('night') || t.includes('ni ')) return '#ff5b4d';
-  if(t.includes('day')) return '#4aa8e8';
-  return 'inherit';
+  if(t.includes('night') || t.includes('ni ') || t.includes('red')) return '#ff5b4d';
+  if(t.includes('day') || t.includes('blue')) return '#4aa8e8';
+  return _inkHex(t);
 }
 
 function renderLogbook(){
@@ -2889,7 +2897,7 @@ function renderLogbook(){
       const inkType = e.entryType||'black';
       const col = _inkHex(inkType) || '#aab4c0';
       const f = v=>v>0?hmFull(v):'—';
-      const selfPilot = (e.pilot||'').toUpperCase().includes('SELF');
+      const selfPilot = e.pilot && (e.pilot.toUpperCase().includes('SELF') || e.pilot.toLowerCase().includes('shubham') || e.pilot.toLowerCase().includes(((getSettings()||{}).name||'').toLowerCase()));
       const rowBg = col + '24';
       const imcTot = (e.imc||0)+(e.imc_day||0)+(e.imc_night||0);
       const sifTot = (e.sif||0)+(e.sif_day||0)+(e.sif_night||0);
@@ -3510,7 +3518,11 @@ function renderSummary(){
   <div class="sum-picker-bar">
     <div class="sum-picker-info">
       <div class="sum-picker-lbl">Active Aircraft</div>
-      <div class="sum-picker-ac">${activeAcName}</div>
+      <div class="sum-picker-selects">
+        <select class="sum-picker-select" id="sumAcSel" onchange="setActiveAcId(this.value); renderSummary();" aria-label="Active Aircraft" style="font-weight:700;color:var(--gold);max-width:140px">
+          ${acs.map(a => `<option value="${a.id}" ${a.id===activeId?'selected':''}>${a.name}</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div class="sum-picker-info" style="text-align:right">
       <div class="sum-picker-lbl">Period</div>
@@ -6764,9 +6776,10 @@ function confirmImport(){
   } else {
     _seedAcnosFromEntries(true);
   }
-  // Active-aircraft references an id that may not exist in the imported set; clear it.
-  // User can re-set it from Prior Experience afterwards.
-  setActiveAcId(null);
+  // Set the primary imported aircraft (e.g. ALH MK1 or first) as active so Summary immediately works!
+  const importedAcs = d.aircraft || getAC();
+  const defAc = importedAcs.find(a => (a.name||'').toLowerCase().includes('alh')) || importedAcs[0];
+  setActiveAcId(defAc ? defAc.id : null);
   _pendingImportData = null;
   applySettings();
   closeImportModal();

@@ -9435,16 +9435,16 @@ function _renderLogbookSearch(){
 function _entryInkClass(e){
   const t = (e.entryType || '').toLowerCase();
   if(t.includes('nvg')) return 'ink-nvg';
-  if(t.includes('night') || t.includes('ni ')) return 'ink-red';
-  if(t.includes('day')) return 'ink-blue';
+  if(t.includes('night') || t.includes('ni ') || t.includes('red')) return 'ink-red';
+  if(t.includes('day') || t.includes('blue')) return 'ink-blue';
   return 'ink-black';
 }
 function _entryInkColor(e){
   const t = (e.entryType || '').toLowerCase();
   if(t.includes('nvg')) return '#2ecc71';
-  if(t.includes('night') || t.includes('ni ')) return '#ff5b4d';
-  if(t.includes('day')) return '#4aa8e8';
-  return 'inherit';
+  if(t.includes('night') || t.includes('ni ') || t.includes('red')) return '#ff5b4d';
+  if(t.includes('day') || t.includes('blue')) return '#4aa8e8';
+  return _inkHex(t);
 }
 
 function renderLogbook(){
