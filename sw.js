@@ -1,21 +1,28 @@
 // Logitta Service Worker for Offline-First PWA
-const CACHE_NAME = 'logitta-cache-v2.76.3';
+const CACHE_NAME = 'logitta-cache-v2.76.5';
 
 const APP_SHELL = [
   './',
+  'index.html',
   './index.html',
+  'styles.css',
   './styles.css',
+  'app.js',
   './app.js',
+  'idb-storage.js',
   './idb-storage.js',
+  'sync.js',
   './sync.js',
+  'manifest.json',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './apple-touch-icon.png',
-  './favicon.png'
+  'icon-192.png',
+  'icon-512.png',
+  'apple-touch-icon.png',
+  'favicon.png'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[Service Worker] Caching app shell');
@@ -23,10 +30,10 @@ self.addEventListener('install', (event) => {
         try {
           await cache.add(url);
         } catch (err) {
-          console.warn('[Service Worker] Pre-cache skip:', url, err);
+          console.warn('[Service Worker] Pre-cache skip:', url);
         }
       }
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -36,7 +43,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', key);
+            console.log('[Service Worker] Removing old cache:', key);
             return caches.delete(key);
           }
         })
@@ -51,48 +58,56 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Skip sync API requests
+  // Skip sync API calls
   if (url.pathname.includes('/api/sync')) return;
 
-  // Dynamic caching for Google Fonts
+  // Google fonts dynamic cache
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
     event.respondWith(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(req).then((cached) => {
-          if (cached) return cached;
-          return fetch(req).then((res) => {
-            cache.put(req, res.clone());
-            return res;
-          }).catch(() => cached);
-        });
-      })
-    );
-    return;
-  }
-
-  // Navigation request (when opening the app or tapping a link)
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(async () => {
-        const cache = await caches.open(CACHE_NAME);
-        return (await cache.match('./index.html')) || (await cache.match('./')) || (await cache.match('index.html'));
-      })
-    );
-    return;
-  }
-
-  // Cache-first for all other assets
-  event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        if (res && res.status === 200 && res.type === 'basic') {
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+          return res;
+        }).catch(() => cached);
+      })
+    );
+    return;
+  }
+
+  // CACHE-FIRST for everything else (instant offline load)
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((cachedResponse) => {
+      if (cachedResponse) {
+        // If online, update cache in background
+        if (navigator.onLine) {
+          fetch(req).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, networkResponse));
+            }
+          }).catch(() => {});
         }
-        return res;
-      }).catch(() => {
-        return caches.match(req);
+        return cachedResponse;
+      }
+
+      // Not in cache yet - fetch from network and cache it
+      return fetch(req).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+        }
+        return networkResponse;
+      }).catch(async () => {
+        // When completely offline, fallback to cached index.html for navigation
+        if (req.mode === 'navigate') {
+          const cache = await caches.open(CACHE_NAME);
+          const fallback = (await cache.match('index.html', { ignoreSearch: true }))
+                        || (await cache.match('./index.html', { ignoreSearch: true }))
+                        || (await cache.match('./', { ignoreSearch: true }));
+          if (fallback) return fallback;
+        }
+        return new Response('Offline', { status: 503, statusText: 'Offline' });
       });
     })
   );

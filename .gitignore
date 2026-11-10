@@ -7,6 +7,7 @@ Thumbs.db
 ipa-build/
 *.ipa
 *.apk
+*.exe
 server_data/
 .system_generated/
 extracted_apk/
