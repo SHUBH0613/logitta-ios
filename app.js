@@ -8463,15 +8463,16 @@ function _tutStopTracking(){
 // ============================================================
 // PWA & SYNC MODAL INTEGRATION
 // ============================================================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+function _initSW(){
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
       console.log('Logitta: Service Worker registered', reg.scope);
     }).catch((err) => {
       console.warn('Logitta: Service Worker registration failed', err);
     });
-  });
+  }
 }
+if (document.readyState === 'complete' || document.readyState === 'interactive') { _initSW(); } else { window.addEventListener('load', _initSW); }
 
 try { _restoreFromVaultIfNeeded(); } catch(e){}
 

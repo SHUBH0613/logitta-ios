@@ -1,5 +1,5 @@
 // Logitta Service Worker for Offline-First PWA
-const CACHE_NAME = 'logitta-cache-v2.76.1';
+const CACHE_NAME = 'logitta-cache-v2.76.3';
 
 const APP_SHELL = [
   './',
@@ -15,27 +15,29 @@ const APP_SHELL = [
   './favicon.png'
 ];
 
-// Install: Cache core app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[Service Worker] Caching app shell');
-      return cache.addAll(APP_SHELL).catch((err) => {
-        console.warn('[Service Worker] Some assets failed to pre-cache:', err);
-      });
+      for (const url of APP_SHELL) {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          console.warn('[Service Worker] Pre-cache skip:', url, err);
+        }
+      }
     }).then(() => self.skipWaiting())
   );
 });
 
-// Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', name);
-            return caches.delete(name);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', key);
+            return caches.delete(key);
           }
         })
       );
@@ -43,59 +45,54 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Cache-First for static assets, Network-First for dynamic/sync
 self.addEventListener('fetch', (event) => {
-  const request = event.request;
-  const url = new URL(request.url);
+  const req = event.request;
+  if (req.method !== 'GET') return;
 
-  // Skip non-GET requests or sync API requests
-  if (request.method !== 'GET' || url.pathname.includes('/api/sync') || url.hostname.includes('googleapis.com/drive')) {
-    return;
-  }
+  const url = new URL(req.url);
 
-  // Google fonts dynamic cache
+  // Skip sync API requests
+  if (url.pathname.includes('/api/sync')) return;
+
+  // Dynamic caching for Google Fonts
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          return fetch(request).then((networkResponse) => {
-            cache.put(request, networkResponse.clone());
-            return networkResponse;
-          }).catch(() => cachedResponse);
+        return cache.match(req).then((cached) => {
+          if (cached) return cached;
+          return fetch(req).then((res) => {
+            cache.put(req, res.clone());
+            return res;
+          }).catch(() => cached);
         });
       })
     );
     return;
   }
 
-  // Standard app shell files: Cache-First, fallback to network
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to keep cache up to date
-        fetch(request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
+  // Navigation request (when opening the app or tapping a link)
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return (await cache.match('./index.html')) || (await cache.match('./')) || (await cache.match('index.html'));
+      })
+    );
+    return;
+  }
 
-      return fetch(request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+  // Cache-first for all other assets
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseToCache);
-        });
-        return networkResponse;
+        return res;
       }).catch(() => {
-        // If navigating to a page offline, return index.html
-        if (request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
+        return caches.match(req);
       });
     })
   );
