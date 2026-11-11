@@ -490,9 +490,6 @@ function _scheduleAutoBackup(){
       if(window.LogittaIDB && typeof window.LogittaIDB.saveVault === 'function'){
         window.LogittaIDB.saveVault(payload);
       }
-      if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
-        window.LogittaSync.markUnsynced();
-      }
     } catch(_) { }
   }, 250);
 }
@@ -888,6 +885,9 @@ function saveSettings(){
   // Strip the legacy `theme` key on save so it doesn't keep getting migrated.
   delete existing.theme;
   setSettings({...existing, accent, mode, fs, name, unit, catir, catirDate, haptics});
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   applySettings();
   renderHome();
   closeSettings();
@@ -1242,6 +1242,9 @@ function doConfirmSave(){
     }
   }
   setAC(acs);
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   // Auto-activate the very first aircraft so Log Entry works without an extra step.
   if(wasFirstAircraft) setActiveAcId(prevCurrentAcId);
   renderAcList();
@@ -1308,6 +1311,9 @@ function doDelete(){
   // If the deleted aircraft was the active one, clear active state
   if(getActiveAcId() === pendingDeleteId) setActiveAcId(null);
   setAC(getAC().filter(a=>a.id!==pendingDeleteId));
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   startDeleteList();
   renderAcList();
   renderHome();
@@ -2212,6 +2218,9 @@ function confirmSaveEntry(){
   // empty or already present, case-insensitive).
   addAcnoSuggestion(_pendingEntry.acno);
   _pendingEntry = null;
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
 
   // Closes the confirm popup, clears the form, and refreshes home. For a NEW
   // sortie we run the celebration tick OVER the still-open popup and defer
@@ -6398,6 +6407,9 @@ function doLogDelete(){
   // (timestamp-based) so we filter on that, not on array position.
   const filtered = getEntries().filter(x=>x.id!==entryId);
   setEntries(filtered);
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
 
   // Re-render the logbook so the row vanishes immediately. We stay on the
   // logbook screen — no navigation needed.
@@ -6559,6 +6571,7 @@ function exportVia(method){
 
   if(method === 'share'){
     if(_callNative(['shareJson','shareFile'], name, json) || _shareTextNative('Logitta Backup', json)){
+      if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('icloud');
       closeExportModal();
       showToast('Shared');
       return;
@@ -6573,7 +6586,11 @@ function exportVia(method){
         const file = new File([blob], name, {type:'application/json'});
         if(navigator.canShare({files:[file]})){
           navigator.share({files:[file], title:'Logitta Backup', text:'Flying log backup'})
-            .then(()=>{ closeExportModal(); showToast('Shared ✓'); })
+            .then(()=>{
+              if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('icloud');
+              closeExportModal();
+              showToast('Shared ✓');
+            })
             .catch(err=>{ if(err.name!=='AbortError'){ _showJsonFallback(json); } });
           return;
         }
@@ -6582,7 +6599,11 @@ function exportVia(method){
     if(navigator.share){
       // Older Share API — title+text only, no file. Try, but fall back to JSON.
       navigator.share({title:'Logitta Backup', text:json.slice(0,2000)})
-        .then(()=>{ closeExportModal(); showToast('Shared ✓'); })
+        .then(()=>{
+          if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced();
+          closeExportModal();
+          showToast('Shared ✓');
+        })
         .catch(err=>{ if(err.name!=='AbortError'){ _showJsonFallback(json); } });
       return;
     }
@@ -6591,6 +6612,7 @@ function exportVia(method){
   }
   else if(method === 'download'){
     if(_downloadJsonNative(name, json)){
+      if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('download');
       closeExportModal();
       showToast('Download saved');
       return;
@@ -6600,6 +6622,7 @@ function exportVia(method){
     // one (most don't), this is a silent no-op — so we ALSO show the JSON inline as
     // a safety net. The Toast tells the user where to look.
     _downloadFile(blob, name);
+    if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('download');
     // After a moment, also surface the JSON so they always have a way out.
     setTimeout(()=>{
       _showJsonFallback(json, /*afterDownload*/ true);
@@ -6787,6 +6810,9 @@ function confirmImport(){
   if(curScreen==='prev') renderAcList();
   if(curScreen==='logbook') renderLogbook();
   if(curScreen==='summary') renderSummary();
+  if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function'){
+    window.LogittaSync.markSynced();
+  }
   haptic('success');
   showToast('Backup restored ✓');
 }
@@ -6836,6 +6862,9 @@ function confirmWipe(){
   // Cancel any pending auto-backup that would re-write the vault with the
   // pre-wipe data captured before this point.
   if(_autoBackupTimer){ clearTimeout(_autoBackupTimer); _autoBackupTimer = null; }
+  if(window.LogittaSync && typeof window.LogittaSync.resetState === 'function'){
+    window.LogittaSync.resetState();
+  }
   document.body.className='';
   applySettings();
   renderHome();
@@ -8499,12 +8528,10 @@ function openSyncModal(){
   if(modal){
     modal.classList.add('active');
     if(window.LogittaSync){
+      if(typeof window.LogittaSync.refreshUI === 'function') window.LogittaSync.refreshUI();
       const settings = window.LogittaSync.getSettings();
       const codeInp = document.getElementById('syncVaultCode');
       if(codeInp && settings.vaultCode) codeInp.value = settings.vaultCode;
-      const last = window.LogittaSync.getLastSyncTime();
-      const lastLbl = document.getElementById('syncLastTime');
-      if(lastLbl) lastLbl.textContent = last ? new Date(last).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Never';
     }
   }
 }
@@ -8534,20 +8561,54 @@ function generateVaultCode(){
   showToast('Generated code: ' + code);
 }
 
-async function doSyncNow(){
+// Keep synchronous click-to-share path so iOS WebKit preserves user activation!
+function doTargetBackup(target){
+  const syncObj = window.LogittaSync || window.ELogSync;
+  if(!syncObj || typeof syncObj.saveBackupTarget !== 'function') return;
+  try {
+    haptic('confirm');
+    syncObj.saveBackupTarget(target).then(res => {
+      if(res && res.cancelled){
+        showToast('Backup cancelled');
+      } else if(res && res.message){
+        haptic('success');
+        showToast(res.message);
+      }
+    }).catch(err => {
+      console.error(err);
+      showToast((err && err.message) || 'Backup failed', true);
+    });
+  } catch(err){
+    console.error(err);
+    showToast((err && err.message) || 'Backup failed', true);
+  }
+}
+
+function doSyncCopyJson(){
+  const syncObj = window.LogittaSync || window.ELogSync;
+  if(!syncObj || typeof syncObj.buildPayload !== 'function') return;
+  try {
+    const json = JSON.stringify(syncObj.buildPayload(), null, 2);
+    _copyToClipboard(json);
+    if(typeof syncObj.markSynced === 'function') syncObj.markSynced('download');
+  } catch(err){
+    showToast((err && err.message) || 'Copy failed', true);
+  }
+}
+
+function doSyncNow(){
   const syncObj = window.LogittaSync || window.ELogSync;
   if(!syncObj) return;
   const btn = document.getElementById('syncMasterBtn');
-  if(btn) { btn.disabled = true; btn.textContent = 'SYNCING...'; }
-  try {
-    const res = await syncObj.triggerSync();
+  if(btn) { btn.disabled = true; btn.textContent = 'PREPARING...'; }
+  Promise.resolve(syncObj.triggerSync('icloud')).then(res => {
     if(res && res.message) showToast(res.message);
-  } catch(err){
+  }).catch(err => {
     console.error(err);
-    showToast(err.message || 'Sync failed', true);
-  } finally {
-    if(btn) { btn.disabled = false; btn.innerHTML = '<svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg><span>SYNC & EXPORT NOW</span>'; }
-  }
+    showToast((err && err.message) || 'Sync failed', true);
+  }).finally(() => {
+    if(btn) { btn.disabled = false; btn.innerHTML = '<svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg><span>BACKUP NOW</span>'; }
+  });
 }
 
 async function doVaultUpload(){
@@ -8574,12 +8635,8 @@ async function doVaultDownload(){
   } catch(e){ showToast(e.message || 'Download failed', true); }
 }
 
-async function doDriveSave(){
-  if(!window.LogittaSync) return;
-  try {
-    const res = await window.LogittaSync.saveToDriveFiles();
-    if(res && !res.cancelled){ showToast(res.message); }
-  } catch(e){ showToast(e.message || 'Drive save failed', true); }
+function doDriveSave(){
+  doTargetBackup('drive');
 }
 
 async function doDriveLoad(evt){
@@ -8588,6 +8645,7 @@ async function doDriveLoad(evt){
   if(!file) return;
   try {
     const res = await window.LogittaSync.loadFromDriveFiles(file);
+    haptic('success');
     showToast(res.message);
     closeSyncModal();
   } catch(e){ showToast(e.message || 'Failed to load file', true); }

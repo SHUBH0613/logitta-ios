@@ -54,6 +54,9 @@ if ('serviceWorker' in navigator) {
     <symbol id="i-drive" viewBox="0 0 24 24">
       <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6M22.85 15l-6.57-11.5H9.72l6.56 11.5"/>
     </symbol>
+    <symbol id="i-icloud" viewBox="0 0 24 24">
+      <path d="M6.5 19h11a4.5 4.5 0 0 0 .9-8.9A6 6 0 0 0 6.8 8.3 4 4 0 0 0 6.5 19Z"/>
+    </symbol>
     <!-- Navigation icons (aviation-themed) -->
     <symbol id="i-wings" viewBox="0 0 24 24">
       <path d="M12 7 L13.4 12 L12 17 L10.6 12 Z"/>
@@ -218,8 +221,9 @@ if ('serviceWorker' in navigator) {
 
 <!-- ══════════════════════════ HOME ══════════════════════════ -->
 <div id="home" class="screen active">
-  <button class="home-sync" id="homeSyncBtn" onclick="openSyncModal()" aria-label="Sync & Cloud Backup">
+  <button class="home-sync" id="homeSyncBtn" onclick="openSyncModal()" aria-label="iCloud & Google Drive Backup">
     <span class="home-sync-dot online" id="homeSyncDot"></span>
+    <span class="home-sync-badge" id="homeSyncBadge" style="display:none"></span>
     <svg class="ico" aria-hidden="true"><use href="#i-cloud-sync"/></svg>
     <span class="sync-word">Sync</span>
   </button>
@@ -274,6 +278,11 @@ if ('serviceWorker' in navigator) {
       <span class="stat-catir" id="h_catir" title="CAT / IR currency">—</span>
     </div>
   </div>
+  <button type="button" class="home-backup-banner" id="homeSyncBanner" onclick="openSyncModal()" style="display:none">
+    <span class="hbb-dot"></span>
+    <span class="hbb-text" id="homeSyncBannerText">Updates not backed up to iCloud / Drive</span>
+    <span class="hbb-cta">BACKUP ›</span>
+  </button>
   <div class="nav-grid">
     <div class="nav-btn" id="navPrev" onclick="go('prev')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-wings"/></svg></div><div class="nav-lbl">Prior Exp</div><div class="nav-desc">Previous aircraft experience</div></div>
     <div class="nav-btn" id="navEntry" onclick="_resetEditingState();go('entry')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-pen-line"/></svg></div><div class="nav-lbl">Log Entry</div><div class="nav-desc">Record new sortie</div></div>
@@ -355,7 +364,7 @@ if ('serviceWorker' in navigator) {
     <div class="sett-row">
       <div class="sett-label">Data Management</div>
       <button class="export-sett-btn" onclick="openSyncModal()">
-        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg>Cloud & Google Drive Sync</span><span class="arrow">›</span>
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg>iCloud &amp; Google Drive Backup</span><span class="arrow">›</span>
       </button>
       <button class="export-sett-btn" onclick="exportBackup()">
         <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-export"/></svg>Export Full Backup (.json)</span><span class="arrow">›</span>
@@ -817,6 +826,108 @@ if ('serviceWorker' in navigator) {
       </div>
       <div class="save-opt-arrow">›</div>
     </button>
+  </div>
+</div>
+
+<!-- ═══════════════ ICLOUD & GOOGLE DRIVE BACKUP MODAL ═══════════════ -->
+<div class="picker-overlay" id="syncModal" onclick="if(event.target===this)closeSyncModal()">
+  <div class="picker-card sync-card">
+    <div class="picker-title">
+      iCloud &amp; Drive Backup
+      <span class="picker-close" onclick="closeSyncModal()">✕</span>
+    </div>
+    <div class="picker-sub">OFFLINE-SAFE JSON BACKUP · ICLOUD &amp; GOOGLE DRIVE</div>
+
+    <div class="sync-status-bar">
+      <div class="sync-status-left">
+        <span class="sync-status-dot online" id="syncStatusDot"></span>
+        <span class="sync-status-text" id="syncStatusText">Ready to back up</span>
+      </div>
+      <div>Last: <span class="sync-time-val" id="syncLastTime">Never</span></div>
+    </div>
+
+    <div class="sync-section-title">1. SAVE BACKUP (.JSON) TO IPHONE FILES / CLOUD</div>
+    <div class="sync-option-card">
+      <div class="sync-opt-head">
+        <div class="sync-opt-icon"><svg class="ico" aria-hidden="true"><use href="#i-cloud-sync"/></svg></div>
+        <div style="flex:1">
+          <div class="sync-opt-title">iCloud Drive &amp; Google Drive</div>
+          <div class="sync-opt-desc">
+            Tap a destination below after logging flights to export a restorable <b>.json</b> backup that stays safe even if Safari resets.
+          </div>
+        </div>
+      </div>
+
+      <div class="sync-target-grid">
+        <button type="button" class="sync-target-btn" id="syncBtnIcloud" onclick="doTargetBackup('icloud')">
+          <div class="stb-top">
+            <span class="stb-ico"><svg class="ico" aria-hidden="true"><use href="#i-icloud"/></svg></span>
+            <span class="stb-badge" id="syncBadgeIcloud">Not saved</span>
+          </div>
+          <div class="stb-name">iCloud / Files</div>
+          <div class="stb-hint" id="syncHintIcloud">Share Sheet → Save to Files → iCloud</div>
+        </button>
+
+        <button type="button" class="sync-target-btn" id="syncBtnDrive" onclick="doTargetBackup('drive')">
+          <div class="stb-top">
+            <span class="stb-ico"><svg class="ico" aria-hidden="true"><use href="#i-drive"/></svg></span>
+            <span class="stb-badge" id="syncBadgeDrive">Not saved</span>
+          </div>
+          <div class="stb-name">Google Drive</div>
+          <div class="stb-hint" id="syncHintDrive">Share Sheet → Google Drive</div>
+        </button>
+      </div>
+
+      <div class="sync-tip-line">
+        On iPhone, Share Sheet handles one destination per tap: pick <b>Save to Files → iCloud Drive</b>, then tap <b>Google Drive</b> to keep dual copies (or enable Google Drive under Files → Browse → Edit).
+      </div>
+
+      <div class="sync-btn-pair" style="margin-top:9px">
+        <button type="button" class="sync-sec-btn" onclick="doTargetBackup('download')">
+          <svg class="ico" aria-hidden="true"><use href="#i-export"/></svg>
+          <span>Safari Downloads</span>
+        </button>
+        <button type="button" class="sync-sec-btn" onclick="doSyncCopyJson()">
+          <svg class="ico" aria-hidden="true"><use href="#i-clipboard"/></svg>
+          <span>Copy JSON</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sync-section-title">2. RESTORE OR MERGE AFTER CRASH / RESET</div>
+    <div class="sync-option-card">
+      <div class="sync-opt-head">
+        <div class="sync-opt-icon"><svg class="ico" aria-hidden="true"><use href="#i-import"/></svg></div>
+        <div>
+          <div class="sync-opt-title">Load &amp; Merge from iCloud / Drive</div>
+          <div class="sync-opt-desc">
+            Select any backup <b>.json</b> from <b>iCloud Drive</b>, <b>Google Drive</b>, or <b>Downloads</b>. Missing sorties merge safely without wiping newer local entries.
+          </div>
+        </div>
+      </div>
+      <button type="button" class="sync-primary-btn" style="margin-bottom:0" onclick="document.getElementById('syncDriveFile').click()">
+        <svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg>
+        <span>CHOOSE .JSON FROM ICLOUD / DRIVE</span>
+      </button>
+      <input type="file" id="syncDriveFile" class="hidden-file" accept="application/json,.json" onchange="doDriveLoad(event)">
+    </div>
+
+    <details class="sync-adv-details">
+      <summary class="sync-adv-summary">Advanced: Self-Hosted Server Vault ▾</summary>
+      <div class="sync-option-card" style="margin-top:8px;margin-bottom:0">
+        <div class="sync-opt-desc" style="margin-bottom:8px">
+          Optional custom backend sync (not used on GitHub Pages offline hosting).
+        </div>
+        <div class="sync-code-row">
+          <input class="sync-input" id="syncVaultCode" placeholder="Vault Code (e.g. LOGITTA)" onchange="saveSyncVaultCode(this.value)">
+          <button type="button" class="sync-code-gen-btn" onclick="generateVaultCode()" title="Generate code">🎲</button>
+        </div>
+        <div class="sync-btn-pair">
+          <button type="button" class="sync-sec-btn" onclick="doVaultUpload()">Upload to Server</button>
+          <button type="button" class="sync-sec-btn" onclick="doVaultDownload()">Download &amp; Merge</button>
+        </div>
+      </div>
+    </details>
   </div>
 </div>
 

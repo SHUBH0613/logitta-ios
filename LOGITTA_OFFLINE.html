@@ -359,6 +359,37 @@ body::before{
 .home-sync-dot.offline{background:#7f8c8d;box-shadow:none}
 .home-sync-dot.syncing{background:#3498db;box-shadow:0 0 6px #3498db;animation:pulseSync .8s infinite alternate}
 @keyframes pulseSync{0%{opacity:.4;transform:scale(.8)}100%{opacity:1;transform:scale(1.2)}}
+.home-sync-badge{
+  position:absolute;top:5px;left:5px;z-index:2;
+  min-width:15px;height:15px;padding:0 4px;border-radius:9px;
+  background:#f39c12;color:#08101f;
+  font-family:'Share Tech Mono',monospace;font-size:9px;font-weight:700;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 0 8px rgba(243,156,18,.65);
+}
+.home-backup-banner{
+  width:100%;max-width:360px;margin:2px 0;padding:8px 12px;
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(243,156,18,.14),rgba(var(--accent-rgb),.1));
+  border:1px solid rgba(243,156,18,.48);border-radius:var(--r2);
+  color:var(--txt);cursor:pointer;text-align:left;
+  transition:transform .12s ease,border-color .15s ease,background .15s ease;
+}
+.home-backup-banner:active{transform:scale(.985);border-color:#f39c12}
+.home-backup-banner .hbb-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  background:#f39c12;box-shadow:0 0 7px #f39c12;
+  animation:pulseSync 1.1s infinite alternate;
+}
+.home-backup-banner .hbb-text{
+  flex:1;min-width:0;font-family:'Rajdhani',sans-serif;font-weight:600;
+  font-size:calc(12.5px * var(--ui-scale));letter-spacing:.3px;color:var(--txt);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.home-backup-banner .hbb-cta{
+  flex-shrink:0;font-family:'Share Tech Mono',monospace;font-weight:700;
+  font-size:calc(10px * var(--ui-scale));letter-spacing:1px;color:#f39c12;
+}
 
 
 /* LOGITTA animation */
@@ -385,6 +416,7 @@ body::before{
 :not(#home) > .dev-credit,
 :not(#home) > .home-settings,
 :not(#home) > .home-sync,
+:not(#home) > .home-backup-banner,
 body > .logo-wrap,
 body > .logo-text,
 body > .home-badge-wrap{
@@ -5004,7 +5036,7 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
 /* ============================================================
    CLOUD & DRIVE SYNC MODAL
    ============================================================ */
-.sync-card { max-width: 480px; }
+.sync-card { max-width: 440px; max-height: calc(100vh - 36px); max-height: calc(100dvh - 36px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .sync-status-bar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 9px 14px; background: var(--bg2); border: 1px solid var(--bdr2);
@@ -5047,6 +5079,38 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
 }
 .sync-sec-btn:active { background: var(--bg4); border-color: var(--gold); color: var(--gold); }
 
+.sync-target-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
+.sync-target-btn {
+  display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  background: var(--bg3); border: 1px solid var(--bdr2); border-radius: var(--r2);
+  padding: 10px 10px 9px; color: var(--txt); cursor: pointer;
+  transition: transform .12s ease, border-color .15s ease, background .15s ease;
+}
+.sync-target-btn:active { transform: scale(.98); border-color: var(--gold); }
+.sync-target-btn.is-fresh { border-color: rgba(46, 204, 113, .55); background: rgba(46, 204, 113, .07); }
+.sync-target-btn.is-pending { border-color: rgba(243, 156, 18, .6); background: rgba(243, 156, 18, .08); }
+.stb-top { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 6px; margin-bottom: 6px; }
+.stb-ico { color: var(--gold); font-size: 20px; line-height: 0; }
+.stb-badge {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: .4px;
+  padding: 2px 6px; border-radius: 10px; background: var(--bg2); color: var(--txt2);
+  border: 1px solid var(--bdr2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.sync-target-btn.is-fresh .stb-badge { color: #2ecc71; border-color: rgba(46, 204, 113, .45); background: rgba(46, 204, 113, .12); }
+.sync-target-btn.is-pending .stb-badge { color: #f39c12; border-color: rgba(243, 156, 18, .45); background: rgba(243, 156, 18, .12); }
+.stb-name { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1.2px; color: var(--txt); line-height: 1.05; }
+.stb-hint { font-size: 10.5px; color: var(--txt2); margin-top: 3px; line-height: 1.25; }
+.sync-tip-line {
+  margin-top: 8px; padding: 7px 9px; border-radius: var(--r3);
+  background: rgba(var(--accent-rgb), .06); border: 1px dashed var(--bdr2);
+  font-size: 10.5px; color: var(--txt2); line-height: 1.35;
+}
+.sync-adv-details { margin-top: 4px; }
+.sync-adv-summary {
+  font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--txt3);
+  letter-spacing: 1px; cursor: pointer; padding: 6px 2px; list-style: none;
+}
+
 </style>
 </head>
 <body>
@@ -5060,6 +5124,9 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
     </symbol>
     <symbol id="i-drive" viewBox="0 0 24 24">
       <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6M22.85 15l-6.57-11.5H9.72l6.56 11.5"/>
+    </symbol>
+    <symbol id="i-icloud" viewBox="0 0 24 24">
+      <path d="M6.5 19h11a4.5 4.5 0 0 0 .9-8.9A6 6 0 0 0 6.8 8.3 4 4 0 0 0 6.5 19Z"/>
     </symbol>
     <!-- Navigation icons (aviation-themed) -->
     <symbol id="i-wings" viewBox="0 0 24 24">
@@ -5225,8 +5292,9 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
 
 <!-- ══════════════════════════ HOME ══════════════════════════ -->
 <div id="home" class="screen active">
-  <button class="home-sync" id="homeSyncBtn" onclick="openSyncModal()" aria-label="Sync & Cloud Backup">
+  <button class="home-sync" id="homeSyncBtn" onclick="openSyncModal()" aria-label="iCloud & Google Drive Backup">
     <span class="home-sync-dot online" id="homeSyncDot"></span>
+    <span class="home-sync-badge" id="homeSyncBadge" style="display:none"></span>
     <svg class="ico" aria-hidden="true"><use href="#i-cloud-sync"/></svg>
     <span class="sync-word">Sync</span>
   </button>
@@ -5281,6 +5349,11 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
       <span class="stat-catir" id="h_catir" title="CAT / IR currency">—</span>
     </div>
   </div>
+  <button type="button" class="home-backup-banner" id="homeSyncBanner" onclick="openSyncModal()" style="display:none">
+    <span class="hbb-dot"></span>
+    <span class="hbb-text" id="homeSyncBannerText">Updates not backed up to iCloud / Drive</span>
+    <span class="hbb-cta">BACKUP ›</span>
+  </button>
   <div class="nav-grid">
     <div class="nav-btn" id="navPrev" onclick="go('prev')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-wings"/></svg></div><div class="nav-lbl">Prior Exp</div><div class="nav-desc">Previous aircraft experience</div></div>
     <div class="nav-btn" id="navEntry" onclick="_resetEditingState();go('entry')"><div class="nav-ico"><svg class="ico" aria-hidden="true"><use href="#i-pen-line"/></svg></div><div class="nav-lbl">Log Entry</div><div class="nav-desc">Record new sortie</div></div>
@@ -5362,7 +5435,7 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
     <div class="sett-row">
       <div class="sett-label">Data Management</div>
       <button class="export-sett-btn" onclick="openSyncModal()">
-        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg>Cloud & Google Drive Sync</span><span class="arrow">›</span>
+        <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg>iCloud &amp; Google Drive Backup</span><span class="arrow">›</span>
       </button>
       <button class="export-sett-btn" onclick="exportBackup()">
         <span><svg class="ico ico-mr" aria-hidden="true"><use href="#i-export"/></svg>Export Full Backup (.json)</span><span class="arrow">›</span>
@@ -5839,6 +5912,108 @@ body.mode-light .lb-scroll.lb-single-month .lb-table thead th{
   </div>
 </div>
 
+<!-- ═══════════════ ICLOUD & GOOGLE DRIVE BACKUP MODAL ═══════════════ -->
+<div class="picker-overlay" id="syncModal" onclick="if(event.target===this)closeSyncModal()">
+  <div class="picker-card sync-card">
+    <div class="picker-title">
+      iCloud &amp; Drive Backup
+      <span class="picker-close" onclick="closeSyncModal()">✕</span>
+    </div>
+    <div class="picker-sub">OFFLINE-SAFE JSON BACKUP · ICLOUD &amp; GOOGLE DRIVE</div>
+
+    <div class="sync-status-bar">
+      <div class="sync-status-left">
+        <span class="sync-status-dot online" id="syncStatusDot"></span>
+        <span class="sync-status-text" id="syncStatusText">Ready to back up</span>
+      </div>
+      <div>Last: <span class="sync-time-val" id="syncLastTime">Never</span></div>
+    </div>
+
+    <div class="sync-section-title">1. SAVE BACKUP (.JSON) TO IPHONE FILES / CLOUD</div>
+    <div class="sync-option-card">
+      <div class="sync-opt-head">
+        <div class="sync-opt-icon"><svg class="ico" aria-hidden="true"><use href="#i-cloud-sync"/></svg></div>
+        <div style="flex:1">
+          <div class="sync-opt-title">iCloud Drive &amp; Google Drive</div>
+          <div class="sync-opt-desc">
+            Tap a destination below after logging flights to export a restorable <b>.json</b> backup that stays safe even if Safari resets.
+          </div>
+        </div>
+      </div>
+
+      <div class="sync-target-grid">
+        <button type="button" class="sync-target-btn" id="syncBtnIcloud" onclick="doTargetBackup('icloud')">
+          <div class="stb-top">
+            <span class="stb-ico"><svg class="ico" aria-hidden="true"><use href="#i-icloud"/></svg></span>
+            <span class="stb-badge" id="syncBadgeIcloud">Not saved</span>
+          </div>
+          <div class="stb-name">iCloud / Files</div>
+          <div class="stb-hint" id="syncHintIcloud">Share Sheet → Save to Files → iCloud</div>
+        </button>
+
+        <button type="button" class="sync-target-btn" id="syncBtnDrive" onclick="doTargetBackup('drive')">
+          <div class="stb-top">
+            <span class="stb-ico"><svg class="ico" aria-hidden="true"><use href="#i-drive"/></svg></span>
+            <span class="stb-badge" id="syncBadgeDrive">Not saved</span>
+          </div>
+          <div class="stb-name">Google Drive</div>
+          <div class="stb-hint" id="syncHintDrive">Share Sheet → Google Drive</div>
+        </button>
+      </div>
+
+      <div class="sync-tip-line">
+        On iPhone, Share Sheet handles one destination per tap: pick <b>Save to Files → iCloud Drive</b>, then tap <b>Google Drive</b> to keep dual copies (or enable Google Drive under Files → Browse → Edit).
+      </div>
+
+      <div class="sync-btn-pair" style="margin-top:9px">
+        <button type="button" class="sync-sec-btn" onclick="doTargetBackup('download')">
+          <svg class="ico" aria-hidden="true"><use href="#i-export"/></svg>
+          <span>Safari Downloads</span>
+        </button>
+        <button type="button" class="sync-sec-btn" onclick="doSyncCopyJson()">
+          <svg class="ico" aria-hidden="true"><use href="#i-clipboard"/></svg>
+          <span>Copy JSON</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sync-section-title">2. RESTORE OR MERGE AFTER CRASH / RESET</div>
+    <div class="sync-option-card">
+      <div class="sync-opt-head">
+        <div class="sync-opt-icon"><svg class="ico" aria-hidden="true"><use href="#i-import"/></svg></div>
+        <div>
+          <div class="sync-opt-title">Load &amp; Merge from iCloud / Drive</div>
+          <div class="sync-opt-desc">
+            Select any backup <b>.json</b> from <b>iCloud Drive</b>, <b>Google Drive</b>, or <b>Downloads</b>. Missing sorties merge safely without wiping newer local entries.
+          </div>
+        </div>
+      </div>
+      <button type="button" class="sync-primary-btn" style="margin-bottom:0" onclick="document.getElementById('syncDriveFile').click()">
+        <svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg>
+        <span>CHOOSE .JSON FROM ICLOUD / DRIVE</span>
+      </button>
+      <input type="file" id="syncDriveFile" class="hidden-file" accept="application/json,.json" onchange="doDriveLoad(event)">
+    </div>
+
+    <details class="sync-adv-details">
+      <summary class="sync-adv-summary">Advanced: Self-Hosted Server Vault ▾</summary>
+      <div class="sync-option-card" style="margin-top:8px;margin-bottom:0">
+        <div class="sync-opt-desc" style="margin-bottom:8px">
+          Optional custom backend sync (not used on GitHub Pages offline hosting).
+        </div>
+        <div class="sync-code-row">
+          <input class="sync-input" id="syncVaultCode" placeholder="Vault Code (e.g. LOGITTA)" onchange="saveSyncVaultCode(this.value)">
+          <button type="button" class="sync-code-gen-btn" onclick="generateVaultCode()" title="Generate code">🎲</button>
+        </div>
+        <div class="sync-btn-pair">
+          <button type="button" class="sync-sec-btn" onclick="doVaultUpload()">Upload to Server</button>
+          <button type="button" class="sync-sec-btn" onclick="doVaultDownload()">Download &amp; Merge</button>
+        </div>
+      </div>
+    </details>
+  </div>
+</div>
+
 <!-- ═══════════════ PDF REPORT — RANGE & AIRCRAFT PICKER ═══════════════ -->
 <div class="picker-overlay" id="pdfReportModal" onclick="if(event.target===this)closePdfReportModal()">
   <div class="picker-card">
@@ -6217,6 +6392,7 @@ const LogittaIDB = (function () {
 const LogittaSync = (function () {
   const K_SYNC_SETTINGS = 'lg_sync_settings_v1';
   const K_LAST_SYNC_TIME = 'lg_last_sync_time_v1';
+  const K_SYNC_STATE = 'lg_sync_state_v1';
 
   let _syncSettings = {
     mode: 'auto',
@@ -6225,11 +6401,48 @@ const LogittaSync = (function () {
     endpoint: ''
   };
 
+  let _syncState = {
+    unsyncedCount: 0,
+    unsyncedSince: null,
+    lastChangeAt: null,
+    lastIcloudAt: null,
+    lastDriveAt: null,
+    lastDownloadAt: null,
+    changeSeq: 0,
+    icloudSeq: -1,
+    driveSeq: -1
+  };
+
   let _isSyncing = false;
   let _hasUnsynced = false;
 
+  function loadSyncState() {
+    try {
+      const raw = localStorage.getItem(K_SYNC_STATE);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          _syncState = { ..._syncState, ...parsed };
+        }
+      }
+    } catch (_) {}
+    _syncState.unsyncedCount = Math.max(0, Number(_syncState.unsyncedCount) || 0);
+    _syncState.changeSeq = Math.max(0, Number(_syncState.changeSeq) || 0);
+    _syncState.icloudSeq = _syncState.icloudSeq == null ? null : Number(_syncState.icloudSeq);
+    _syncState.driveSeq = _syncState.driveSeq == null ? null : Number(_syncState.driveSeq);
+    _hasUnsynced = _syncState.unsyncedCount > 0;
+  }
+
+  function saveSyncState() {
+    _hasUnsynced = _syncState.unsyncedCount > 0;
+    try {
+      localStorage.setItem(K_SYNC_STATE, JSON.stringify(_syncState));
+    } catch (_) {}
+  }
+
   function init() {
     loadSettings();
+    loadSyncState();
     updateUI();
     window.addEventListener('online', () => updateConnectionStatus(true));
     window.addEventListener('offline', () => updateConnectionStatus(false));
@@ -6255,18 +6468,75 @@ const LogittaSync = (function () {
     return { ..._syncSettings };
   }
 
-  function markUnsynced() {
-    _hasUnsynced = true;
-    updateSyncPill('unsynced', 'Unsynced');
+  function isTargetFresh(targetIso, targetSeq) {
+    if (!targetIso) return false;
+    if (typeof targetSeq === 'number' && !isNaN(targetSeq)) {
+      return targetSeq >= (_syncState.changeSeq || 0);
+    }
+    if ((_syncState.unsyncedCount || 0) > 0) return false;
+    if (!_syncState.lastChangeAt) return true;
+    const tTarget = new Date(targetIso).getTime();
+    const tChange = new Date(_syncState.lastChangeAt).getTime();
+    if (isNaN(tTarget) || isNaN(tChange)) return true;
+    return tTarget >= tChange;
   }
 
-  function markSynced() {
-    _hasUnsynced = false;
+  function markUnsynced() {
     const now = new Date().toISOString();
+    _syncState.unsyncedCount = Math.max(0, Number(_syncState.unsyncedCount) || 0) + 1;
+    _syncState.changeSeq = Math.max(0, Number(_syncState.changeSeq) || 0) + 1;
+    if (!_syncState.unsyncedSince) _syncState.unsyncedSince = now;
+    _syncState.lastChangeAt = now;
+    _hasUnsynced = true;
+    saveSyncState();
+    updateUI();
+  }
+
+  function markSynced(target) {
+    const now = new Date().toISOString();
+    const seq = Math.max(0, Number(_syncState.changeSeq) || 0);
+    _syncState.unsyncedCount = 0;
+    _syncState.unsyncedSince = null;
+    if (target === 'icloud') {
+      _syncState.lastIcloudAt = now;
+      _syncState.icloudSeq = seq;
+    } else if (target === 'drive') {
+      _syncState.lastDriveAt = now;
+      _syncState.driveSeq = seq;
+    } else if (target === 'download') {
+      _syncState.lastDownloadAt = now;
+    } else if (target === 'both') {
+      _syncState.lastIcloudAt = now;
+      _syncState.lastDriveAt = now;
+      _syncState.icloudSeq = seq;
+      _syncState.driveSeq = seq;
+    }
+    _hasUnsynced = false;
     try {
       localStorage.setItem(K_LAST_SYNC_TIME, now);
     } catch (_) {}
-    updateSyncPill('synced', 'Synced');
+    saveSyncState();
+    updateUI();
+  }
+
+  function resetState() {
+    _syncState = {
+      unsyncedCount: 0,
+      unsyncedSince: null,
+      lastChangeAt: null,
+      lastIcloudAt: null,
+      lastDriveAt: null,
+      lastDownloadAt: null,
+      changeSeq: 0,
+      icloudSeq: -1,
+      driveSeq: -1
+    };
+    _hasUnsynced = false;
+    try {
+      localStorage.removeItem(K_SYNC_STATE);
+      localStorage.removeItem(K_LAST_SYNC_TIME);
+    } catch (_) {}
+    updateUI();
   }
 
   function getLastSyncTime() {
@@ -6277,14 +6547,18 @@ const LogittaSync = (function () {
     }
   }
 
-  function updateConnectionStatus(isOnline) {
-    if (!isOnline) {
-      updateSyncPill('offline', 'Offline');
-    } else if (_hasUnsynced) {
-      updateSyncPill('unsynced', 'Unsynced');
-    } else {
-      updateSyncPill('synced', 'Online');
-    }
+  function getSyncSummary() {
+    return {
+      ..._syncState,
+      hasUnsynced: _syncState.unsyncedCount > 0,
+      lastBackupAt: getLastSyncTime(),
+      icloudFresh: isTargetFresh(_syncState.lastIcloudAt, _syncState.icloudSeq),
+      driveFresh: isTargetFresh(_syncState.lastDriveAt, _syncState.driveSeq)
+    };
+  }
+
+  function updateConnectionStatus() {
+    updateUI();
   }
 
   function updateSyncPill(state, text) {
@@ -6408,17 +6682,28 @@ const LogittaSync = (function () {
     if (typeof window.setNames === 'function' && Array.isArray(data.nameSuggestions)) window.setNames(data.nameSuggestions);
     if (typeof window.setAcnos === 'function' && Array.isArray(data.acnoSuggestions)) window.setAcnos(data.acnoSuggestions);
 
+    // Ensure an active aircraft is selected after crash recovery/restore
+    if (typeof window.getActiveAcId === 'function' && typeof window.setActiveAcId === 'function' && !window.getActiveAcId()) {
+      const acs = Array.isArray(data.aircraft) ? data.aircraft : [];
+      if (acs.length > 0) {
+        const defAc = acs.find(a => (a.name || '').toLowerCase().includes('alh')) || acs[0];
+        if (defAc && defAc.id) window.setActiveAcId(defAc.id);
+      }
+    }
+
     // Save to IndexedDB
     if (window.LogittaIDB) {
       window.LogittaIDB.saveVault(data);
     }
 
     // Refresh UI
+    if (typeof window.applySettings === 'function') window.applySettings();
     if (typeof window.renderHome === 'function') window.renderHome();
     if (typeof window.renderEntries === 'function') window.renderEntries();
     if (typeof window.renderAircraftList === 'function') window.renderAircraftList();
     if (typeof window.renderAcList === 'function') window.renderAcList();
     if (typeof window.renderLogbook === 'function') window.renderLogbook();
+    if (typeof window.renderSummary === 'function') window.renderSummary();
   }
 
   function getEndpoint(code) {
@@ -6488,31 +6773,30 @@ const LogittaSync = (function () {
     return { success: true, message };
   }
 
-  // 2. EXPORT TO GOOGLE DRIVE / ICLOUD / LOCAL FILES
-  async function saveToDriveFiles() {
+  function _buildBackupFile() {
     const payload = buildPayload();
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const dateStr = new Date().toISOString().slice(0, 10);
     const fileName = `Logitta_Backup_${dateStr}.json`;
+    return { payload, json, blob, fileName };
+  }
 
-    if (navigator.canShare && typeof File !== 'undefined') {
-      try {
-        const file = new File([blob], fileName, { type: 'application/json' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'Logitta Flying Log Book Backup',
-            text: 'Save to Google Drive or iCloud Files'
-          });
-          markSynced();
-          return { success: true, message: 'Saved to Drive / Files!' };
-        }
-      } catch (e) {
-        if (e.name === 'AbortError') return { cancelled: true };
-      }
-    }
+  function _triggerBlobDownload(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 1500);
+  }
 
+  async function _fallbackPickerOrDownload(blob, fileName, target) {
     if (window.showSaveFilePicker) {
       try {
         const handle = await window.showSaveFilePicker({
@@ -6522,25 +6806,75 @@ const LogittaSync = (function () {
         const writable = await handle.createWritable();
         await writable.write(blob);
         await writable.close();
-        markSynced();
-        return { success: true, message: 'Saved to Drive / Disk!' };
+        markSynced(target);
+        return {
+          success: true,
+          target,
+          message: target === 'drive' ? 'Saved backup file for Google Drive ✓' : 'Saved backup file to Files / iCloud ✓'
+        };
       } catch (e) {
-        if (e.name === 'AbortError') return { cancelled: true };
+        if (e && e.name === 'AbortError') return { cancelled: true, target };
       }
     }
 
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(a.href);
-      a.remove();
-    }, 1000);
+    _triggerBlobDownload(blob, fileName);
+    markSynced(target === 'icloud' || target === 'drive' ? 'download' : target);
+    return {
+      success: true,
+      target: 'download',
+      message: `Downloaded ${fileName} (Check Files → Downloads) ✓`
+    };
+  }
 
-    markSynced();
-    return { success: true, message: `Exported ${fileName} to Downloads / Drive.` };
+  // 2. EXPORT TO ICLOUD FILES / GOOGLE DRIVE / DOWNLOADS
+  // Important on iOS: invoke navigator.share synchronously within the user tap!
+  function saveBackupTarget(target = 'icloud') {
+    const { blob, fileName } = _buildBackupFile();
+
+    if (target === 'download') {
+      _triggerBlobDownload(blob, fileName);
+      markSynced('download');
+      return Promise.resolve({
+        success: true,
+        target: 'download',
+        message: `Downloaded ${fileName} ✓`
+      });
+    }
+
+    if (navigator.canShare && typeof File !== 'undefined') {
+      try {
+        const file = new File([blob], fileName, { type: 'application/json' });
+        if (navigator.canShare({ files: [file] })) {
+          return navigator.share({
+            files: [file],
+            title: 'Logitta Flying Log Backup',
+            text: target === 'drive'
+              ? 'Save Logitta backup to Google Drive'
+              : 'Save Logitta backup to iCloud Drive / Files'
+          }).then(() => {
+            markSynced(target);
+            return {
+              success: true,
+              target,
+              message: target === 'drive'
+                ? 'Saved backup via Google Drive Share Sheet ✓'
+                : 'Saved backup via iCloud / Files Share Sheet ✓'
+            };
+          }).catch((e) => {
+            if (e && e.name === 'AbortError') return { cancelled: true, target };
+            return _fallbackPickerOrDownload(blob, fileName, target);
+          });
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') return Promise.resolve({ cancelled: true, target });
+      }
+    }
+
+    return _fallbackPickerOrDownload(blob, fileName, target);
+  }
+
+  function saveToDriveFiles() {
+    return saveBackupTarget('drive');
   }
 
   // 3. LOAD & MERGE FROM GOOGLE DRIVE / ICLOUD / LOCAL FILES
@@ -6557,10 +6891,21 @@ const LogittaSync = (function () {
           const current = buildPayload();
           const { merged, stats } = mergePayloads(current, remoteData);
           applyDataset(merged);
-          markSynced();
+
+          // If local only matched remote or this was a fresh recovery, clear unsynced warning;
+          // if local already had extra entries not present in the imported file, keep reminder active.
+          if (stats.localTotal === 0 || stats.mergedTotal <= stats.remoteTotal) {
+            markSynced();
+          } else {
+            updateUI();
+          }
+
           resolve({
             success: true,
-            message: `Restored! Merged ${stats.addedFromRemote} new sorties. Total entries: ${stats.mergedTotal}`
+            stats,
+            message: stats.localTotal === 0
+              ? `Restored ${stats.mergedTotal} sorties from backup ✓`
+              : `Merged ${stats.addedFromRemote} new sorties! Total: ${stats.mergedTotal}`
           });
         } catch (err) {
           reject(err);
@@ -6571,59 +6916,20 @@ const LogittaSync = (function () {
     });
   }
 
-  // 4. MASTER "SYNC NOW" ACTION
-  async function triggerSync() {
-    if (_isSyncing) return;
+  // 4. MASTER ACTION (direct share sheet for iPhone PWA)
+  function triggerSync(target = 'icloud') {
+    if (_isSyncing) return Promise.resolve({ cancelled: true });
     _isSyncing = true;
-    updateSyncPill('syncing', 'Syncing...');
+    updateSyncPill('syncing', 'Preparing backup...');
 
-    try {
-      let cloudMsg = '';
-      let cloudOk = false;
-
-      try {
-        const res = await syncCloudVault('sync');
-        cloudMsg = res.message;
-        cloudOk = true;
-      } catch (err) {
-        console.warn('Cloud sync note:', err.message);
-      }
-
-      let fileMsg = '';
-      try {
-        const fileRes = await saveToDriveFiles();
-        if (fileRes && !fileRes.cancelled) {
-          fileMsg = fileRes.message;
-        }
-      } catch (err) {
-        console.warn('File export note:', err.message);
-      }
-
-      markSynced();
-
-      const finalMsg = cloudOk
-        ? (cloudMsg + (fileMsg ? ' & File Exported' : ''))
-        : (fileMsg || 'Data synced & saved to local vault!');
-
-      if (typeof window.showToast === 'function') {
-        window.showToast(finalMsg);
-      }
-      return { success: true, message: finalMsg };
-    } catch (err) {
-      console.error('Sync failed:', err);
-      updateSyncPill('error', 'Sync Failed');
-      if (typeof window.showToast === 'function') {
-        window.showToast(err.message || 'Sync failed', true);
-      }
-      throw err;
-    } finally {
+    return saveBackupTarget(target).finally(() => {
       _isSyncing = false;
-      const last = getLastSyncTime();
-      updateSyncPill(_hasUnsynced ? 'unsynced' : 'synced', last ? 'Synced ' + formatTimeAgo(last) : 'Ready');
-    }
+      updateUI();
+    });
   }
 
   function formatTimeAgo(iso) {
+    if (!iso) return 'Never';
     try {
       const diffSec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
       if (diffSec < 60) return 'just now';
@@ -6638,13 +6944,96 @@ const LogittaSync = (function () {
   function updateUI() {
     const codeInp = document.getElementById('syncVaultCode');
     const lastSyncLabel = document.getElementById('syncLastTime');
-
     if (codeInp) codeInp.value = _syncSettings.vaultCode || 'LOGITTA';
 
     const last = getLastSyncTime();
     if (lastSyncLabel) {
       lastSyncLabel.textContent = last ? formatTimeAgo(last) : 'Never';
     }
+
+    const cnt = _syncState.unsyncedCount || 0;
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : true;
+
+    if (_isSyncing) {
+      updateSyncPill('syncing', 'Opening Share Sheet...');
+    } else if (cnt > 0) {
+      updateSyncPill('unsynced', `${cnt} unsaved change${cnt === 1 ? '' : 's'} — Backup recommended`);
+    } else if (last) {
+      updateSyncPill('synced', isOnline ? 'Backed up' : 'Backed up (Offline ready)');
+    } else {
+      updateSyncPill('synced', isOnline ? 'Ready to back up' : 'Offline (Files backup works)');
+    }
+
+    // Home top-left Sync button numeric badge
+    const badge = document.getElementById('homeSyncBadge');
+    if (badge) {
+      if (cnt > 0) {
+        badge.textContent = cnt > 99 ? '99+' : String(cnt);
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // Home screen reminder banner
+    const banner = document.getElementById('homeSyncBanner');
+    const bannerTxt = document.getElementById('homeSyncBannerText');
+    if (banner && bannerTxt) {
+      if (cnt > 0) {
+        bannerTxt.textContent = `${cnt} update${cnt === 1 ? '' : 's'} not backed up to iCloud / Drive`;
+        banner.style.display = 'flex';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    // Per-target cards (iCloud & Google Drive) inside Sync Modal
+    const updateTargetCard = (btnId, badgeId, hintId, ts, targetSeq, defaultHint) => {
+      const btn = document.getElementById(btnId);
+      const bEl = document.getElementById(badgeId);
+      const hEl = document.getElementById(hintId);
+      const fresh = isTargetFresh(ts, targetSeq);
+
+      if (btn) {
+        btn.classList.toggle('is-fresh', fresh);
+        btn.classList.toggle('is-pending', (!!ts && !fresh) || (!ts && cnt > 0));
+      }
+      if (bEl) {
+        if (fresh) {
+          bEl.textContent = '✓ ' + formatTimeAgo(ts);
+        } else if (ts) {
+          bEl.textContent = 'Update needed';
+        } else {
+          bEl.textContent = cnt > 0 ? 'Pending' : 'Not saved';
+        }
+      }
+      if (hEl) {
+        if (fresh) {
+          hEl.textContent = 'Up to date · Tap to export again';
+        } else if (ts) {
+          hEl.textContent = 'Last: ' + formatTimeAgo(ts) + ' · Tap to update';
+        } else {
+          hEl.textContent = defaultHint;
+        }
+      }
+    };
+
+    updateTargetCard(
+      'syncBtnIcloud',
+      'syncBadgeIcloud',
+      'syncHintIcloud',
+      _syncState.lastIcloudAt,
+      _syncState.icloudSeq,
+      'Share Sheet → Save to Files → iCloud'
+    );
+    updateTargetCard(
+      'syncBtnDrive',
+      'syncBadgeDrive',
+      'syncHintDrive',
+      _syncState.lastDriveAt,
+      _syncState.driveSeq,
+      'Share Sheet → Google Drive'
+    );
   }
 
   return {
@@ -6653,8 +7042,12 @@ const LogittaSync = (function () {
     saveSettings,
     markUnsynced,
     markSynced,
+    resetState,
+    getSyncSummary,
+    refreshUI: updateUI,
     triggerSync,
     syncCloudVault,
+    saveBackupTarget,
     saveToDriveFiles,
     loadFromDriveFiles,
     mergePayloads,
@@ -6664,7 +7057,8 @@ const LogittaSync = (function () {
   };
 })();
 
-// Alias
+// Expose on window cleanly for browser <script> consumers
+window.LogittaSync = LogittaSync;
 window.ELogSync = LogittaSync;
 
 
@@ -7280,9 +7674,6 @@ function _scheduleAutoBackup(){
       if(window.LogittaIDB && typeof window.LogittaIDB.saveVault === 'function'){
         window.LogittaIDB.saveVault(payload);
       }
-      if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
-        window.LogittaSync.markUnsynced();
-      }
     } catch(_) { }
   }, 250);
 }
@@ -7678,6 +8069,9 @@ function saveSettings(){
   // Strip the legacy `theme` key on save so it doesn't keep getting migrated.
   delete existing.theme;
   setSettings({...existing, accent, mode, fs, name, unit, catir, catirDate, haptics});
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   applySettings();
   renderHome();
   closeSettings();
@@ -8032,6 +8426,9 @@ function doConfirmSave(){
     }
   }
   setAC(acs);
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   // Auto-activate the very first aircraft so Log Entry works without an extra step.
   if(wasFirstAircraft) setActiveAcId(prevCurrentAcId);
   renderAcList();
@@ -8098,6 +8495,9 @@ function doDelete(){
   // If the deleted aircraft was the active one, clear active state
   if(getActiveAcId() === pendingDeleteId) setActiveAcId(null);
   setAC(getAC().filter(a=>a.id!==pendingDeleteId));
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
   startDeleteList();
   renderAcList();
   renderHome();
@@ -9002,6 +9402,9 @@ function confirmSaveEntry(){
   // empty or already present, case-insensitive).
   addAcnoSuggestion(_pendingEntry.acno);
   _pendingEntry = null;
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
 
   // Closes the confirm popup, clears the form, and refreshes home. For a NEW
   // sortie we run the celebration tick OVER the still-open popup and defer
@@ -13188,6 +13591,9 @@ function doLogDelete(){
   // (timestamp-based) so we filter on that, not on array position.
   const filtered = getEntries().filter(x=>x.id!==entryId);
   setEntries(filtered);
+  if(window.LogittaSync && typeof window.LogittaSync.markUnsynced === 'function'){
+    window.LogittaSync.markUnsynced();
+  }
 
   // Re-render the logbook so the row vanishes immediately. We stay on the
   // logbook screen — no navigation needed.
@@ -13349,6 +13755,7 @@ function exportVia(method){
 
   if(method === 'share'){
     if(_callNative(['shareJson','shareFile'], name, json) || _shareTextNative('Logitta Backup', json)){
+      if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('icloud');
       closeExportModal();
       showToast('Shared');
       return;
@@ -13363,7 +13770,11 @@ function exportVia(method){
         const file = new File([blob], name, {type:'application/json'});
         if(navigator.canShare({files:[file]})){
           navigator.share({files:[file], title:'Logitta Backup', text:'Flying log backup'})
-            .then(()=>{ closeExportModal(); showToast('Shared ✓'); })
+            .then(()=>{
+              if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('icloud');
+              closeExportModal();
+              showToast('Shared ✓');
+            })
             .catch(err=>{ if(err.name!=='AbortError'){ _showJsonFallback(json); } });
           return;
         }
@@ -13372,7 +13783,11 @@ function exportVia(method){
     if(navigator.share){
       // Older Share API — title+text only, no file. Try, but fall back to JSON.
       navigator.share({title:'Logitta Backup', text:json.slice(0,2000)})
-        .then(()=>{ closeExportModal(); showToast('Shared ✓'); })
+        .then(()=>{
+          if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced();
+          closeExportModal();
+          showToast('Shared ✓');
+        })
         .catch(err=>{ if(err.name!=='AbortError'){ _showJsonFallback(json); } });
       return;
     }
@@ -13381,6 +13796,7 @@ function exportVia(method){
   }
   else if(method === 'download'){
     if(_downloadJsonNative(name, json)){
+      if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('download');
       closeExportModal();
       showToast('Download saved');
       return;
@@ -13390,6 +13806,7 @@ function exportVia(method){
     // one (most don't), this is a silent no-op — so we ALSO show the JSON inline as
     // a safety net. The Toast tells the user where to look.
     _downloadFile(blob, name);
+    if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function') window.LogittaSync.markSynced('download');
     // After a moment, also surface the JSON so they always have a way out.
     setTimeout(()=>{
       _showJsonFallback(json, /*afterDownload*/ true);
@@ -13577,6 +13994,9 @@ function confirmImport(){
   if(curScreen==='prev') renderAcList();
   if(curScreen==='logbook') renderLogbook();
   if(curScreen==='summary') renderSummary();
+  if(window.LogittaSync && typeof window.LogittaSync.markSynced === 'function'){
+    window.LogittaSync.markSynced();
+  }
   haptic('success');
   showToast('Backup restored ✓');
 }
@@ -13626,6 +14046,9 @@ function confirmWipe(){
   // Cancel any pending auto-backup that would re-write the vault with the
   // pre-wipe data captured before this point.
   if(_autoBackupTimer){ clearTimeout(_autoBackupTimer); _autoBackupTimer = null; }
+  if(window.LogittaSync && typeof window.LogittaSync.resetState === 'function'){
+    window.LogittaSync.resetState();
+  }
   document.body.className='';
   applySettings();
   renderHome();
@@ -15289,12 +15712,10 @@ function openSyncModal(){
   if(modal){
     modal.classList.add('active');
     if(window.LogittaSync){
+      if(typeof window.LogittaSync.refreshUI === 'function') window.LogittaSync.refreshUI();
       const settings = window.LogittaSync.getSettings();
       const codeInp = document.getElementById('syncVaultCode');
       if(codeInp && settings.vaultCode) codeInp.value = settings.vaultCode;
-      const last = window.LogittaSync.getLastSyncTime();
-      const lastLbl = document.getElementById('syncLastTime');
-      if(lastLbl) lastLbl.textContent = last ? new Date(last).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Never';
     }
   }
 }
@@ -15324,20 +15745,54 @@ function generateVaultCode(){
   showToast('Generated code: ' + code);
 }
 
-async function doSyncNow(){
+// Keep synchronous click-to-share path so iOS WebKit preserves user activation!
+function doTargetBackup(target){
+  const syncObj = window.LogittaSync || window.ELogSync;
+  if(!syncObj || typeof syncObj.saveBackupTarget !== 'function') return;
+  try {
+    haptic('confirm');
+    syncObj.saveBackupTarget(target).then(res => {
+      if(res && res.cancelled){
+        showToast('Backup cancelled');
+      } else if(res && res.message){
+        haptic('success');
+        showToast(res.message);
+      }
+    }).catch(err => {
+      console.error(err);
+      showToast((err && err.message) || 'Backup failed', true);
+    });
+  } catch(err){
+    console.error(err);
+    showToast((err && err.message) || 'Backup failed', true);
+  }
+}
+
+function doSyncCopyJson(){
+  const syncObj = window.LogittaSync || window.ELogSync;
+  if(!syncObj || typeof syncObj.buildPayload !== 'function') return;
+  try {
+    const json = JSON.stringify(syncObj.buildPayload(), null, 2);
+    _copyToClipboard(json);
+    if(typeof syncObj.markSynced === 'function') syncObj.markSynced('download');
+  } catch(err){
+    showToast((err && err.message) || 'Copy failed', true);
+  }
+}
+
+function doSyncNow(){
   const syncObj = window.LogittaSync || window.ELogSync;
   if(!syncObj) return;
   const btn = document.getElementById('syncMasterBtn');
-  if(btn) { btn.disabled = true; btn.textContent = 'SYNCING...'; }
-  try {
-    const res = await syncObj.triggerSync();
+  if(btn) { btn.disabled = true; btn.textContent = 'PREPARING...'; }
+  Promise.resolve(syncObj.triggerSync('icloud')).then(res => {
     if(res && res.message) showToast(res.message);
-  } catch(err){
+  }).catch(err => {
     console.error(err);
-    showToast(err.message || 'Sync failed', true);
-  } finally {
-    if(btn) { btn.disabled = false; btn.innerHTML = '<svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg><span>SYNC & EXPORT NOW</span>'; }
-  }
+    showToast((err && err.message) || 'Sync failed', true);
+  }).finally(() => {
+    if(btn) { btn.disabled = false; btn.innerHTML = '<svg class="ico ico-mr" aria-hidden="true"><use href="#i-cloud-sync"/></svg><span>BACKUP NOW</span>'; }
+  });
 }
 
 async function doVaultUpload(){
@@ -15364,12 +15819,8 @@ async function doVaultDownload(){
   } catch(e){ showToast(e.message || 'Download failed', true); }
 }
 
-async function doDriveSave(){
-  if(!window.LogittaSync) return;
-  try {
-    const res = await window.LogittaSync.saveToDriveFiles();
-    if(res && !res.cancelled){ showToast(res.message); }
-  } catch(e){ showToast(e.message || 'Drive save failed', true); }
+function doDriveSave(){
+  doTargetBackup('drive');
 }
 
 async function doDriveLoad(evt){
@@ -15378,6 +15829,7 @@ async function doDriveLoad(evt){
   if(!file) return;
   try {
     const res = await window.LogittaSync.loadFromDriveFiles(file);
+    haptic('success');
     showToast(res.message);
     closeSyncModal();
   } catch(e){ showToast(e.message || 'Failed to load file', true); }

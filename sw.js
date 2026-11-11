@@ -1,5 +1,5 @@
 // Logitta Service Worker for Offline-First PWA
-const CACHE_NAME = 'logitta-cache-v2.76.5';
+const CACHE_NAME = 'logitta-cache-v2.76.6';
 
 const APP_SHELL = [
   './',
